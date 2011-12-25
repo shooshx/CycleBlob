@@ -1,0 +1,17 @@
+s/model/.M/g
+s/point/T/g
+s/wall/W/g
+s/normal/O/g
+s/curPage/C/g
+s/upDir/U/g
+s/player/Pl/g
+s/numItems/I/g
+s/msgQueue/mq/g
+s/queue/q/g
+s/worldModel/wo/g
+s/leftHand/fh/g
+s/curMenuDraw/cm/g
+s/curStepFrac/f/g
+s/pntRecord/r/g
+s/drawGameState/.dg/g
+s/widgets/wd/g

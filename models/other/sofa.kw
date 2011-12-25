@@ -1,0 +1,41 @@
+r=1.2
+rb=1
+a1={r,r,r}
+a2={r,-r,r}
+
+a4={-r,r,r}
+
+b1={rb,rb,-rb}
+b2={r,-r,-r}
+b3={-r,-r,-r}
+b4={-r,r,-r}
+add(b1,b2,b3,b4)
+
+add(a2,b2,b1,a1)
+add(a1,b1,b4,a4)
+
+s=--0.2
+c1={s,s,r}
+c2={s,-r,r}
+c4={-r,s,r}
+
+b=0.0
+d1={b,b,-b}
+d2={s,-r,-s}
+d3={-r,-r,-s}
+d4={-r,s,-s}
+
+
+add(a4, c4, c1, a1)
+add(c1, c2, a2, a1)
+add(d1, c1, c4, d4)
+
+
+add(d3, d2, d1, d4)
+add(d2, c2, c1, d1)
+add(a2, c2, d2, b2)
+add(d2, d3, b3, b2)
+
+
+add(a4, b4, d4, c4)
+add(d4, b4, b3, d3)

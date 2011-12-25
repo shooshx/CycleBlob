@@ -1,0 +1,151 @@
+ /*   var request = new XMLHttpRequest();
+    request.open("GET", filename);
+	request.overrideMimeType("application/json");
+    request.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            var parsed = JSON.parse(this.responseText);
+            createBuffers(parsed, model);
+            if (meshdata)
+                createVectors(parsed, model);
+            onload();
+        }
+    }
+    request.send();*/
+
+---------------------
+
+
+       // local coord alternates between 1 and 0 in adjacent vertices.
+        // it is used for the grid texture shader
+        var localCoord = [];
+        var onesList = [0], zerosList = [];
+        while (onesList.length > 0 || zerosList.length > 0) {
+            while (onesList.length > 0) {
+                var c = onesList.pop();
+                if (c in localCoord)
+                    continue;
+                localCoord[c] = 1;
+                var nc = nei[c];
+                zerosList = zerosList.concat(Object.keys(nc).slice(0,4));
+            }
+            while (zerosList.length > 0) {
+                var c = zerosList.pop();
+                if (c in localCoord)
+                    continue;
+                localCoord[c] = 0;
+                var nc = nei[c];
+                onesList = onesList.concat(Object.keys(nc).slice(0,4));
+            }
+        }
+        model.localCoord = localCoord;
+
+
+-----------------------------
+
+
+function _testDraw(model)
+{
+    if (!model.vtxBut)
+        return
+    
+    setMatrixUniforms();
+    gl.bindBuffer(gl.ARRAY_BUFFER, model.vtxBut);
+    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, model.vtxBut.itemSize, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, model.vtxBut.itemSize, gl.FLOAT, false, 0, 0);
+
+ //   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.idx);
+    gl.drawElements(gl.TRIANGLE_STRIP, model.idx.numItems, gl.UNSIGNED_SHORT, 0);
+    
+    checkGLErrors();
+}
+
+function _testinitBuffers(model) {
+    var vertices = [
+         1.0,  0.8,  0.0,
+        -1.0,  1.0,  0.0,
+         1.0, -1.0,  0.0,
+        -1.0, -1.0,  0.0
+    ];
+    model.vtxBut = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, model.vtxBut);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    model.vtxBut.itemSize = 3;
+    model.vtxBut.numItems = 4;
+    
+    var indices = [0,1,2,3];
+    model.idx = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.idx);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+    model.idx.itemSize = 1;
+    model.idx.numItems = indices.length;
+    
+    checkGLErrors();
+        
+}
+
+
+
+
+--------------------------
+
+function _testDraw(model)
+{
+    if (!model.squareVertexPositionBuffer)
+        return
+    
+    setMatrixUniforms();
+    gl.bindBuffer(gl.ARRAY_BUFFER, model.squareVertexPositionBuffer);
+    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, model.squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, model.squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+function _testinitBuffers(model) {
+    model.squareVertexPositionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, model.squareVertexPositionBuffer);
+    var vertices = [
+         1.0,  0.8,  0.0,
+        -1.0,  1.0,  0.0,
+         1.0, -1.0,  0.0,
+        -1.0, -1.0,  0.0
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    model.squareVertexPositionBuffer.itemSize = 3;
+    model.squareVertexPositionBuffer.numItems = 4;
+}
+
+----------------------------
+
+function crash() {
+    buf = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, 16, gl.DYNAMIC_DRAW);
+    gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, -20, new Uint16Array([1,2,3,4]));
+}
+
+----------------------------- geom mesh with lines
+
+    if (input.lines) {
+     /*   for (var i = 0; i < input.lines.length; i += 2) {
+            var a = input.lines[i], b = input.lines[i + 1];
+            ds = indexDist(model, a, b);
+            nei[a][b] = ds; nei[b][a] = ds;
+            distSum += ds; ++distCount;
+        }*/
+        throw Error("not supported");
+    }
+
+
+--------------------------- sound lags
+
+function testAudio() {
+    var snd = new SoundMixer($("#turnSound1")[0], 5);
+    var i = 0;
+    setInterval(function() {
+        snd.play(1);
+        clearDebug();
+        writeDebug(i++);
+    }, 200);
+}

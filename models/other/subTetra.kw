@@ -1,0 +1,31 @@
+p1 = {1.0, 1.0, 1.0}
+p2 = {-1.0, -1.0, 1.0}
+p3 = {-1.0, 1.0, -1.0}
+p4 = {1.0, -1.0, -1.0}
+
+d=0.1
+m1=(p1+p2+p3)/3+p4*d
+m2=(p1+p3+p4)/3+p2*d
+m3=(p2+p3+p4)/3+p1*d
+m4=(p1+p2+p4)/3+p3*d 
+
+ed=0.65
+e1=(p1+p2)*ed
+e2=(p1+p3)*ed
+e3=(p1+p4)*ed
+e4=(p2+p3)*ed
+e5=(p2+p4)*ed
+e6=(p3+p4)*ed
+
+add(m4, e1, p2, e5)
+add(m4, e3, p1, e1)
+add(m4, e5, p4, e3)
+add(e1, m1, e4, p2)
+add(p1, e2, m1, e1)
+add(e2, p3, e4, m1)
+add(e3, m2, e2, p1)
+add(p4, e6, m2, e3)
+add(e6, p3, e2, m2)
+add(p2, e4, m3, e5)
+add(e5, m3, e6, p4)
+add(m3, e4, p3, e6)

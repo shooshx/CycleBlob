@@ -1,0 +1,3 @@
+AddType application\json jsonz json
+AddEncoding gzip jsonz gz
+

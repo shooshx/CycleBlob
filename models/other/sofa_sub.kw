@@ -1,0 +1,62 @@
+r=1.2
+rb=1
+lr=0.2
+a1={r,r,r-lr}
+a2={r,-r,r}
+a4={-r,r,r}
+
+b1={rb,rb,-rb}
+b2={r,-r+lr,-r}
+b3={-r,-r,-r}
+b4={-r+lr,r,-r}
+
+s=--0.2
+c1={s,s,r}
+c2={s,-r,r}
+c4={-r,s,r}
+
+b=0.0
+d1={b,b,-b}
+d2={s,-r,-s}
+d3={-r,-r,-s}
+d4={-r,s,-s}
+
+add(d1, c1, c4, d4)
+add(d3, d2, d1, d4)
+add(d2, c2, c1, d1)
+
+m1=(a1+a2+b1+b2)/4
+m2=(a1+a2)/2
+m3=(a2+b2)/2
+m4=(b2+b1)/2
+m5=(b1+a1)/2
+add(m3, m1, m2, a2)
+add(b2, m4, m1, m3)
+add(m4, b1, m5, m1)
+add(m1, m5, a1, m2)
+
+m6=(a1+a4+b4+b1)/4
+m7=(a1+a4)/2
+m8=(b4+a4)/2
+m9=(b1+b4)/2
+add(m5, m6, m7, a1)
+add(m6, m8, a4, m7)
+add(b1, m9, m6, m5)
+add(m9, b4, m8, m6)
+
+h1=(b1+b2+b3+b4)/4
+h2=(b2+b3)/2
+h3=(b4+b3)/2
+add(b2, h2, h1, m4)
+add(m4, h1, m9, b1)
+add(h1, h3, b4, m9)
+add(h2, b3, h3, h1)
+add(c4, a4, m8, d4)
+add(d4, m8, b4, h3)
+add(d3, d4, h3, b3)
+add(d2, d3, b3, h2)
+add(m3, d2, h2, b2)
+add(a2, c2, d2, m3)
+add(m2, c1, c2, a2)
+add(a1, m7, c1, m2)
+add(m7, a4, c4, c1)

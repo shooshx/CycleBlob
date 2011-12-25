@@ -1,0 +1,72 @@
+<!doctype html>
+<html><head>
+    <meta http-equiv="Cache-Control" content="no-cache">
+</head>
+    
+<script id="phong-fs" type="x-shader/x-fragment">
+    precision highp float;
+    // varying vec2 vTextureCoord;
+    varying vec4 vTransformedNormal;
+    varying vec4 vPosition;
+    
+    uniform bool uUseLighting;
+    uniform bool uTwoSided;
+    uniform vec3 uAmbientColor;
+    
+    uniform vec3 uPointLightingLocation;
+    uniform vec3 uPointLightingDiffuseColor;
+    
+    // uniform sampler2D uSampler;
+    uniform vec4 uGlobColor;
+    
+    void main(void) {
+        vec3 lightWeighting;
+        if (!uUseLighting) {
+            lightWeighting = vec3(1.0, 1.0, 1.0);
+        } else {
+            vec3 lightDirection = normalize(uPointLightingLocation - vPosition.xyz);
+            vec3 normal = normalize(vTransformedNormal.xyz);
+          
+            float specularLightWeighting = 0.0;
+          
+            float diffuseLightWeighting = dot(normal, lightDirection);
+            if (uTwoSided)
+                diffuseLightWeighting = abs(diffuseLightWeighting);
+            diffuseLightWeighting = max(diffuseLightWeighting, 0.0);
+            
+            lightWeighting = uAmbientColor
+              + uPointLightingDiffuseColor * diffuseLightWeighting;
+        }
+        
+        gl_FragColor = vec4(uGlobColor.rgb * lightWeighting, uGlobColor.a);
+        
+    }
+</script>
+
+<script id="phong-vs" type="x-shader/x-vertex">
+    precision highp float;
+      
+    attribute vec3 aVertexPosition;
+    attribute vec3 aVertexNormal;
+    // attribute vec2 aTextureCoord;
+    
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+    //uniform mat4 uNMatrix;
+    uniform vec4 uGlobColor;
+    
+    // varying vec2 vTextureCoord;
+    varying vec4 vTransformedNormal;
+    varying vec4 vPosition;
+    
+    void main(void) {
+        vPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
+        gl_Position = uPMatrix * vPosition;
+
+        //  vTextureCoord = aTextureCoord;
+        //vTransformedNormal = uNMatrix * vec4(aVertexNormal, 1.0);
+        vTransformedNormal = uMVMatrix * vec4(aVertexNormal, 0.0);
+    }
+</script>
+    
+<body></body></html>

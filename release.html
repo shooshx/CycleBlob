@@ -1,0 +1,62 @@
+<!doctype html>
+<html><head>
+<title>Cycleblob - A WebGL lightcycle game</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF8">
+<link href="http://cycleblob.com/favicon.ico" rel="shortcut icon">
+<link rel="stylesheet" type="text/css" href="page.css">
+<meta name="description" content="Cycleblob, A WebGL lightcycle game based on the concept of the movie TRON. written by Shy Shalom">
+    
+<script type="text/javascript" src="jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="cycleblob.min.js"></script>
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-2231125-3']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</head>
+<body onload="webGLStart();">
+    <iframe id="shadersFrame" src="shaders.html" style="display:none"></iframe>
+    
+    <div id="canvas-container" style="position:relative; height:650px; width:80%; margin:auto;"> 
+        <canvas id="game-canvas" width="900" height="650" style="background-color: transparent; position: absolute; left: 0px; top: 0px; z-index: 0;"></canvas>
+        <canvas id="ctrl-canvas" width="900" height="650" style="background-color: transparent; position: absolute; left: 0px; top: 0px; z-index: 1;"></canvas>
+        <noscript class="no-script">
+            <p>Cycleblob - a 3D lightcycle game based on a concept from the 1982 movie "TRON". Cycleblob uses WebGL and JavaScript
+            to bring 3D content to the web browser</p>
+            <h2>You have JavaScript disabled</h2>
+            <p>In order to play cycleblob you need to have JavaScript enabled in your browser</p>
+            <!-- "old embed code" from youtube -->
+            <br/><object width="640" height="390"><param name="movie" value="http://www.youtube.com/v/amFozFKhmxc?fs=1&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/amFozFKhmxc?fs=1&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="390"></embed></object>
+        </noscript>
+    </div>
+    <div id="feedback">
+        <a href="contact.php">Feedback</a>&nbsp;&nbsp;&nbsp;<a href="about.php">About</a>
+        &nbsp;&nbsp;&nbsp; <!-- facebook like button -->
+        <script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script><fb:like href="http://cycleblob.com/" layout="button_count" show_faces="false" width="70" font="" colorscheme="dark"></fb:like>
+    </div>
+    <img id="repImg" src="img/rep_image.png" style="display:none"></img> <!-- for facebook -->
+
+    <audio id="turnSound1" src="sound/turn5.ogg" preload="auto" style="display:none"></audio>
+    <audio id="powerupSound" src="sound/powerup2.ogg" preload="auto" style="display:none"></audio>
+    <audio id="crashSound" src="sound/crash2.ogg" preload="auto" style="display:none"></audio>
+    <audio id="coinUp" src="sound/coin_up3.ogg" preload="auto" style="display:none"></audio>
+    
+    <img id="soundOnImg" src="img/speaker_on.svg" style="display:none"></img>
+    <img id="soundOffImg" src="img/speaker_off.svg" style="display:none"></img>
+    <img id="titleTextImg" src="img/title_text8.svg" style="display:none"></img>
+    <img id="againImg" src="img/icon_Refresh.png" style="display:none"></img>
+    <img id="resumeImg" src="img/icon_Playb.png" style="display:none"></img>
+    <img id="menuImg" src="img/icon_Desktop.png" style="display:none"></img>
+    <img id="nextImg" src="img/icon_Forward.png" style="display:none"></img>
+
+    <img id="instructImg" src="img/instructions3.svgz" style="display:none"></img> <!-- missing the header image -->
+    <img id="instructHeader" src="img/instructions_header.png" style="display:none"></img> <!-- missing the header image -->
+
+</body>
+</html>
