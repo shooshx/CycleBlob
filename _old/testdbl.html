@@ -1,0 +1,41 @@
+<!doctype html>
+<html><head>
+<script>
+
+    
+    var canvas, canvas2d, ctx2d;
+    var i = 0;
+    
+    function tick() {
+        webkitRequestAnimationFrame(tick, canvas2d)
+        ++i
+        if ((i % 100) === 50)
+            ctx2d.fillStyle = 'white'
+        else if ((i % 100) === 0)
+            ctx2d.fillStyle = 'black'
+        else
+            return;
+        ctx2d.fillRect(20, 20, 800, 600);
+    }
+
+    function webGLStart() {
+        canvas = document.getElementById("c3d");
+
+        var ctx3d = canvas.getContext('experimental-webgl');
+        
+        canvas2d = document.getElementById("c2d");
+        ctx2d = canvas2d.getContext('2d');
+        
+        webkitRequestAnimationFrame(tick, canvas2d)
+    }
+
+
+</script>
+</head>
+<body onload="webGLStart();" style="background-color: grey";>
+
+    <canvas id="c3d" width="900" height="650" style="background-color: transparent; position: absolute; left: 0px; top: 0px; z-index: 0; display:inline" ></canvas>
+    <canvas id="c2d" width="900" height="650" style="background-color: transparent; position: absolute; left: 0px; top: 0px; z-index: 1;"></canvas>
+
+</body>
+</html>
