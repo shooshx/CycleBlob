@@ -176,7 +176,7 @@ function drawScene() {
     
             mv.pushMatrix();
             mvTransformToPlayer(player);
-            mv.scale(2);
+            //mv.scale(2); // big bikes
 
             if (player.alive) {
                 // local transformations to specific model of bike
@@ -532,5 +532,6 @@ function webGLStart() {
     
     setInterval(deployBonus, 1000);
 }
+
 
 
