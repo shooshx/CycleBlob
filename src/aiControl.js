@@ -32,7 +32,7 @@ Ai.prototype.turnRight = function() {
 }
 
 function isOccupied(point) {
-    var w = world.map[point];
+    var w = world.map.getPiece(point);
     return (w !== undefined && w >= 0) // (occupied) can be equal to 0.. for player 0
 }
 
@@ -43,8 +43,9 @@ Ai.prototype.turnToAvailableSide = function(nei)
     
     if (this.occRight && this.occLeft) // no where to turn
         return; // we're screwed, nothing to do but die.
-    if (!this.occRight && !this.occLeft) { // both are clear, choose one
-        
+    if (!this.occRight && !this.occLeft)
+    { // both are clear, choose one
+     
         if (this.checkFarBlocks()) // returns true if made a decision
             return; 
         if (randomChoise(0.5))

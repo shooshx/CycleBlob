@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="src\webgl-utils.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\aiControl.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\browserDetect.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\build_number.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\debug.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\gameControl.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\geomProcess.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\glMatrix-0.9.4.min.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\jquery.cookie.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\loadManager.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\main.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\pack_footer.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\pack_header.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\player.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\pUtils.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\screens2d.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\sfx.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\shaders.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\sprintf-0.6.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\transform.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\userInput.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="src\viewPoint.js">
+      <Filter>js</Filter>
+    </None>
+    <None Include="page.css">
+      <Filter>html</Filter>
+    </None>
+    <None Include="page.html">
+      <Filter>html</Filter>
+    </None>
+    <None Include="release.html">
+      <Filter>html</Filter>
+    </None>
+    <None Include="shaders.html">
+      <Filter>html</Filter>
+    </None>
+    <None Include="favicon.ico">
+      <Filter>html</Filter>
+    </None>
+    <None Include="about.php">
+      <Filter>html</Filter>
+    </None>
+    <None Include="contact.php">
+      <Filter>html</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="js">
+      <UniqueIdentifier>{db60a2f8-8bc3-466b-97c8-e3c1e835a7be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="html">
+      <UniqueIdentifier>{aa750ae1-6250-4d9e-816b-f10de2464b36}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

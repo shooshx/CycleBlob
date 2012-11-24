@@ -1,0 +1,2 @@
+install node.js installer for windows
+extract node-modules to this directory where the build script is

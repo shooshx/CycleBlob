@@ -9,6 +9,7 @@ function GLBuffer(target) {
     this.target = target;
 }
 
+// c'tor with data
 // array should be a new TypedArray
 //   target: gl.ELEMENT_ARRAY_BUFFER or gl.ARRAY_BUFFER
 //   initArray: TypedArray of items
@@ -56,7 +57,7 @@ function glTypes() {
     return glTypes.t;
 }
 
-
+// c'tor with size
 // an item is for instance a Vec3
 // an element is for instance a single float
 //   target: gl.ELEMENT_ARRAY_BUFFER or gl.ARRAY_BUFFER

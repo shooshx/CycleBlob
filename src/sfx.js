@@ -136,7 +136,7 @@ WallDecent.prototype.advance = function(elapsedMsec)
         pwall.standing = false; // stop drawing it
         // update map, last point in the record is the crash, don't delete it because it's another wall
         for(var i = 0; i < pwall.pntRecord.length - 1; ++i) {
-            world.map[pwall.pntRecord[i]] = undefined;
+            world.map.unset(pwall.pntRecord[i]);
         }
         
         return;
@@ -181,7 +181,7 @@ function LifeBonus(index) {
     this.index = index;
     this.occupy = nei;    
     for(var ni in this.occupy)
-        world.map[this.occupy[ni]] = -100 + index
+        world.map.set(this.occupy[ni], 1000 + index)
     
     this.normal = world.model.normals[this.point];
     this.forward = vec3.normalize(vec3.nsubtract(world.model.vtx[this.point], world.model.vtx[nei[1]])); // an estimate, nor really perpendicular
@@ -244,7 +244,7 @@ LifeBonus.prototype.action = function(player) {
     }
     
     for(var ni in this.occupy)
-        delete world.map[this.occupy[ni]];
+        world.map.unset(this.occupy[ni]);
     delete world.bonuses[this.index];
     
     playBonusSound(player);

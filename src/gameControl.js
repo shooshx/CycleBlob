@@ -50,7 +50,7 @@ function startLife(lvlsel) {
         players[pi].init();
 
     // initialize the map
-    world.map = [];
+    world.map = new PieceMap();
 
     // initialize camera
     if (!level.view) {// 0 or undefined
@@ -319,12 +319,12 @@ function randomFreePoint() {
         if (iter++ > 10)
             return [ null ];
         pnt = randomInt(0, world.model.vtx.length - 1);
-        if (world.map[pnt] !== undefined)
+        if (world.map.get(pnt) !== undefined)
             continue;
         nl = world.model.nei[pnt].t;
         free = true;
         for(var ni in nl) {
-            free |= (world.map[nl[ni]] === undefined) // can be 0 if its player 0
+            free |= (world.map.get(nl[ni]) === undefined) // can be 0 if its player 0
         }
     } while(!free);
     

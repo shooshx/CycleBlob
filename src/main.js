@@ -224,11 +224,11 @@ function movePlayer(player)
     var lastPoint = player.point;
     var dist = player.selDir.move.call(player);
     
-    var collide = world.map[player.point];
+    var collide = world.map.getPiece(player.point);
     if (collide !== undefined)
     {
-        if (collide < 0) { // its a bonus
-            var bid = collide + 100;
+        if (collide >= 1000) { // its a bonus
+            var bid = collide - 1000;
             if (world.bonuses[bid]) // should always be true...
                 world.bonuses[bid].action(player); // also removes the bonus from the map
         }
@@ -238,9 +238,9 @@ function movePlayer(player)
     }
         
     // update map after everything?
-    world.map[lastPoint] = player.id + 100; // put wall in the previous point
+    world.map.set(lastPoint, player.id + 100, 0); // put wall in the previous point
     if (collide === undefined)
-        world.map[player.point] = player.id; // put bike in the current point
+        world.map.set(player.point, player.id, 0); // put bike in the current point
         
     return { dist:dist, collide:collide };
 }
@@ -425,16 +425,53 @@ function initGL(canvas) {
     return true;
 }
 
+function PieceMap() {
+    // lower 16 bits (piece)
+    //  holds which walls occupy which vertices. maps vertex index->player id
+    //  undefined : empty
+    //  [1000, 1100] : bonuses
+    //  [0, 99] : players
+    //  [100, 199] : walls of players (every wall, it's own distinct number)
+    // higher 16 bits (meta)
+    //  for player/wall: creation time - acending counter
+    this.data = []
+}
+PieceMap.prototype.getPiece = function (index) {
+    var v = this.data[index];
+    if (v === undefined)
+        return v;
+    return v & 0xffff;
+}
+PieceMap.prototype.getMeta = function (index) {
+    var v = this.data[index];
+    if (v === undefined)
+        return v;
+    return v >> 16;
+}
+PieceMap.prototype.get = function (index) {
+    return this.data[index];
+}
+PieceMap.piece = function (val) {
+    return val & 0xffff;
+}
+PieceMap.meta = function (val) {
+    return val >> 16;
+}
+PieceMap.prototype.set = function (index, piece, meta) {
+    if (piece > 0x7fff || meta > 0x7fff)
+        throw Error("Out of range for map " + piece + " " + meta)
+    this.data[index] = (piece & 0xffff) | meta << 16;
+}
+PieceMap.prototype.unset = function (index) {
+    delete this.data[index];
+}
+
 
 var shaderProg = new Program();
 
 var world = {
-    // holds which walls occupy which vertices map vertex index->player id
-    // undefined : empty
-    // [-100, -1] : bonuses
-    // [0, 99] : players
-    // [100, 199] : walls of players
-    map: [],
+
+    map: new PieceMap(),
     // world.ready means the world is loaded, processed and ready for play
     ready: false
 };
@@ -490,10 +527,7 @@ function containterResize(event, bforce) {
 }
 
 
-
-
 function webGLStart() {
-   
     canvas = document.getElementById("game-canvas");
 
     if (!initGL(canvas))
