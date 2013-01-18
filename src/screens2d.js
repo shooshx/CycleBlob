@@ -1,511 +1,4 @@
 
-var $MR = Math.round;
-
-function Box(x, y, width, height) {
-    this.x = $MR(x); this.y = $MR(y); this.height = $MR(height); this.width = $MR(width);
-}
-Box.prototype.inside = function(coord) {
-    return (coord.x >= this.x && coord.y >= this.y && coord.x <= this.x+this.width && coord.y <= this.y+this.height);
-}
-Box.prototype.expand = function(px) {
-    this.x -= px;
-    this.y -= px;
-    this.height += 2*px;
-    this.width += 2*px;
-    return this;
-}
-// returns a new copy
-Box.prototype.expanded = function(px) {
-    return new Box(this.x - px, this.y - px, this.width + 2*px, this.height + 2*px);
-}
-Box.prototype.down = function(px) {
-    this.y += px;
-    return this;
-}
-Box.prototype.xmid = function() {
-    return this.x + $MR(this.width/2);
-}
-Box.prototype.widen = function(px) {
-    this.x -= $MR(px);
-    this.width += $MR(2*px);
-    return this;
-}
-
-
-function callWidget(e, w, ename) {
-    var c = c2d.getCanvasCoord(e);
-    w.base.callback.call(w, (w.box?{ x:c.x-w.box.x, y:c.y-w.box.y, name:ename}:undefined) );
-}
-
-function menuMouseMove(e) {
-
-    if (c2d.curPage.mouseCaptureWidget) {
-        callWidget(e, c2d.curPage.mouseCaptureWidget, Widget.EVENT_MOVE);
-        return;
-    }
-    var w = c2d.getWidget(e)
-    if (w !== null && w.base.index !== c2d.curPage.sel) {
-        
-        //var snd = $("#turnSound")[0];
-        //snd.currentTime = 0;
-        //snd.play();
-        
-        c2d.curPage.sel = w.base.index;
-        c2d.drawWidgets();
-    }
-}
-
-function menuMouseDown(e) {
-  //  var coord = getCanvasCoord(e);
-  //  writeDebug(coord.x + " " + coord.y);
-    var w = c2d.getWidget(e)
-    if (w !== null) {
-        callWidget(e, w, Widget.EVENT_PRESS);
-    }
-    else if (c2d.curPage.mouseHandler !== null)
-        c2d.curPage.mouseHandler();
-}
-
-function menuMouseUp(e) {
-    if (c2d.curPage.mouseCaptureWidget) {
-        callWidget(e, c2d.curPage.mouseCaptureWidget, Widget.EVENT_RELEASE);
-        c2d.curPage.mouseCaptureWidget = null;
-    }
-}
-
-
-function menuKeyDown(e) {
-    var ret;
-    if (c2d.curPage.widgets.length > 0) {
-        ret = false;
-        if (e.keyCode === KeyEvent.DOM_VK_DOWN || e.keyCode === KeyEvent.DOM_VK_RIGHT)
-            c2d.curPage.sel = (c2d.curPage.sel + 1) % c2d.curPage.widgets.length;
-        else if (e.keyCode === KeyEvent.DOM_VK_UP || e.keyCode === KeyEvent.DOM_VK_LEFT)
-            c2d.curPage.sel = (c2d.curPage.sel - 1 + c2d.curPage.widgets.length) % c2d.curPage.widgets.length;
-        else if (e.keyCode === KeyEvent.DOM_VK_RETURN ||
-                 e.keyCode === KeyEvent.DOM_VK_ENTER ||
-                 e.keyCode === KeyEvent.DOM_VK_SPACE)
-        {
-            var w = c2d.curPage.widgets[c2d.curPage.sel];
-            w.base.callback.call(w); // engage a button
-        }
-        else
-            ret = true; // not processes
-        
-        if (ret === false) {        
-            c2d.drawWidgets();
-            return ret;
-        }
-    }
-    if (c2d.curPage.keyHandler !== null) {
-        // keyHandler return value has the same sematrics as this handler.
-        // it returns false if the key is consumed
-        return c2d.curPage.keyHandler(e.keyCode);
-    }
-    
-    return true;
-}
-
-function menuKeyUp(e) {}
-
-
-//////////////////////////////////////////////// screens and widgets /////////////////////////
-
-// control 2d constructore
-function C2d() {
-    this.curPage = null;
-    this.msgQueue = [];
-    this.curMenuDraw = null;
-    this.curMenuRemake = null;
-    this.texth = 42; // changes with resize
-    
-    this.has3dContent = false;
-    this.render3d = [];  // 3d renderables
-    this.mainMenu = null; // points to the function which draw the menu from which we came. either the start menu or the custom level menu
-
-    window.setInterval(function() { c2d.checkMessageQueue(); }, 200);
-}
-
-C2d.prototype.setup2dInputs = function()
-{
-        // disable scrolling in the page using keyboard
-    document.onkeydown = menuKeyDown; 
-    document.onkeyup = menuKeyUp;
-    
-    canvas2d.onmousedown = menuMouseDown; 
-    canvas.onmousedown = menuMouseDown; 
-    document.onmouseup = menuMouseUp;
-    document.onmousemove = menuMouseMove;
-    
-    userInput.handlersSet = userInput.HANDLERS_MENU;
-}
-
-
-C2d.prototype.getCanvasCoord = function(e) {
-    return { x:e.layerX, y:e.layerY }; // ignoring any borders and padding  
-}
-
-
-C2d.prototype.getWidget = function(e) {
-    var coord = this.getCanvasCoord(e);
-    for(var i = 0; i < this.curPage.widgets.length; ++i) {
-        var widget = this.curPage.widgets[i];
-        if (widget.box.inside(coord))
-            return widget;
-    }
-    return null;
-}
-
-
-C2d.prototype.roundedBoxPath = function(x, y, w, h, r) {
-    ctx2d.beginPath();
-    ctx2d.moveTo(x+r, y);
-    ctx2d.arcTo(x+w, y, x+w, y+r, r);
-    ctx2d.arcTo(x+w, y+h, x+w-r, y+h, r);
-    ctx2d.arcTo(x, y+h, x, y+h-r, r);
-    ctx2d.arcTo(x, y, x+r, y, r)
-}
-
-C2d.prototype.backgroundRect = function(box) {
-    // clear it anyway becuase the color has alpha
-    // erase a bit more not to leave traces behind
-    ctx2d.clearRect(box.x, box.y, box.width, box.height); 
-    if (this.widgetsBackground !== undefined) {
-        ctx2d.fillStyle = this.widgetsBackground;
-        ctx2d.fillRect(box.x, box.y, box.width, box.height);
-    }
-}
-
-
-C2d.prototype.drawSelect = function(box, isSelected) {
-    if (isSelected) {
-        var size = Math.max(box.width, box.height); // want 45 degrees
-        var grad = ctx2d.createLinearGradient(box.x, box.y, box.x+size/2, box.y+size/2);
-        grad.addColorStop(0, 'rgba(136,255,19,1.0)');
-        grad.addColorStop(1, 'rgba(255,255,0,1.0)');
-        ctx2d.fillStyle = grad;
-        
-        c2d.roundedBoxPath(box.x, box.y, box.width, box.height, 10);
-        
-        ctx2d.fillStyle = "black";
-        ctx2d.fill(); // workround for chrome 9 transparency bug
-        ctx2d.fillStyle = grad;
-        ctx2d.fill();
-    
-    }
-    else {
-        this.backgroundRect(box);
-    }
-}
-
-
-function Widget(callback, index) {
-    this.callback = callback;
-    this.index = index;
-}
-
-Widget.EVENT_PRESS = 100;
-Widget.EVENT_MOVE = 101;
-Widget.EVENT_RELEASE = 102;
-
-/////////////////////////////////////// TextButton ///////////////////////////////////////////////
-
-function TextButton(text, box, w, groupItem) {
-    this.base = w; // base widget
-    this.text = text;
-    this.tx = box.x;
-    this.ty = box.y + box.height;
-    
-    this.box = box.expanded($MR(c2d.em/4)).down($MR(c2d.em/7));
-    
-    this.group = groupItem;
-    if (this.group) 
-        this.group.setBox(box.expanded($MR(c2d.em/8)).down($MR(c2d.em/7)));
-}
-
-var MMENU_FILL = "#ff8464";
-var MMENU_STROKE = "#c90034";
-
-TextButton.prototype.draw = function(isSelected) {
-    c2d.drawSelect(this.box, isSelected);
-    if (this.group) 
-        this.group.testndraw();
-    ctx2d.fillStyle = MMENU_FILL; // orange "#ff3c00"
-    var tx = (ctx2d.textAlign == "center")?(this.box.x + $MR(0.5*this.box.width)):this.tx;
-
-    ctx2d.fillText(this.text, tx, this.ty);
-    ctx2d.lineWidth = 2;
-    ctx2d.strokeStyle = MMENU_STROKE;  //"#500000"
-    ctx2d.strokeText(this.text, tx, this.ty);
-    
-}
-
-/////////////////////////////////// ImgToggleButton - check box with two images /////////////////
-
-function ImgToggleButton(imgOn, imgOff, text, initState, box, w) {
-    this.base = w;
-    this.imgOn = imgOn;
-    this.imgOff = imgOff;
-    this.text = text;
-    this.boxImg = box;
-    this.box = box.expanded($MR(c2d.em/4));
-    this.isOn = initState;
-    this.toggleCallback = this.base.callback;
-    this.base.callback = function() {
-        this.isOn = !this.isOn;
-        this.toggleCallback(this.isOn);
-        this.draw(true);
-    }
-}
-
-ImgToggleButton.prototype.draw = function(isSelected) {
-    c2d.drawSelect(this.box, isSelected);
-    
-    var img = (this.isOn)?this.imgOn:this.imgOff;
-    ctx2d.drawImage(img, this.boxImg.x, this.boxImg.y, this.boxImg.width, this.boxImg.height);
-}
-
-///////////////////////////////////// ImgButton - button with a single image ////////////////////
-
-function ImgButton(img, text, box, w, groupItem) {
-    this.base = w;
-    this.img = img;
-    this.text = text;
-    this.boxImg = box;
-    this.box = box.expanded($MR(c2d.em/4));
-    
-    this.group = groupItem;
-    if (this.group) 
-        this.group.setBox(box.expanded($MR(c2d.em/8)));
-}
-
-ImgButton.prototype.draw = function(isSelected) {
-    c2d.drawSelect(this.box, isSelected);
-    if (this.group) 
-        this.group.testndraw();
-    if (this.img === null)
-        return;
-    ctx2d.drawImage(this.img, this.boxImg.x, this.boxImg.y, this.boxImg.width, this.boxImg.height);
-}
-
-//////////////////////////////////// Slider /////////////////////////////////////////////////
-
-function Slider(vmin, vmax, step, value, box, w) {
-    this.base = w; w.box = box;
-    this.vmin = vmin; this.vmax = vmax; this.step = step;
-    this.value = value;
-    this.box = box;
-    this.valueChanged = w.callback;
-    this.base.callback = this.onevent;
-    this.clearBox = box.expanded(2).widen(c2d.en*0.5);
-    this.valueChanged(this.value);
-}
-
-Slider.prototype.draw = function(isSelected) {
-    c2d.backgroundRect(this.clearBox);
-        
-    var wf = $MR(this.box.height*0.22);
-    c2d.roundedBoxPath(this.box.x, this.box.y+$MR((this.box.height-wf)*0.5), this.box.width, wf, $MR(wf*0.5));
-    ctx2d.fillStyle = MMENU_FILL;
-    ctx2d.fill();
-    ctx2d.strokeStyle = MMENU_STROKE;
-    ctx2d.lineWidth = 2;
-    ctx2d.stroke();
-    
-    // x center of the selector
-    var selx = this.box.x + this.box.width / (this.vmax - this.vmin) * (this.value - this.vmin);
-    var selhw = $MR(c2d.en*0.35);
-    c2d.roundedBoxPath(selx-selhw, this.box.y, 2*selhw, this.box.height, $MR(selhw*0.4));
-    ctx2d.fill();
-    ctx2d.stroke();
-    
-}
-
-
-Slider.prototype.onevent = function(e) {
-    var newvalue = this.vmin + e.x/this.box.width*(this.vmax - this.vmin)
-    newvalue = Math.min(this.vmax, Math.max(this.vmin, newvalue)); // clamp to min-max
-    newvalue = $MR(newvalue/this.step)*this.step; // clamp to steps
-    if (newvalue !== this.value) {
-        this.value = newvalue;
-        this.draw(true);
-        this.valueChanged(newvalue);
-    }
-    
-    if (e.name === Widget.EVENT_PRESS)
-        c2d.curPage.mouseCaptureWidget = this;
-}
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-C2d.prototype.blankScr = function(background) {
-    if (!background)
-        ctx2d.clearRect(0, 0, ctx2d.canvas.width, ctx2d.canvas.height);
-    else {
-        ctx2d.fillStyle = background;
-        ctx2d.fillRect(0, 0, ctx2d.canvas.width, ctx2d.canvas.height);
-    }
-}
-
-function GroupCommon(selected) {
-    this.sel = selected;
-}
-
-// common: an instance of GroupCommon
-function GroupItem(common, id) {
-    this.id = id;
-    this.com = common; 
-}
-
-GroupItem.prototype.setBox = function(box) {
-    this.box = box
-}
-
-GroupItem.prototype.testndraw = function() {
-    if (this.com.sel === this.id) { // it is selected
-        c2d.roundedBoxPath(this.box.x, this.box.y, this.box.width, this.box.height, 10);
-        ctx2d.lineWidth = 2;
-        ctx2d.fillStyle = "rgba(0,0,255,0.2)";  
-        ctx2d.fill();
-        ctx2d.strokeStyle = "#0000FF";
-        ctx2d.stroke();
-    }
-}
-
-
-
-C2d.prototype.clearScr = function() {
-    this.curPage = {};
-    this.curPage.widgets = [];
-    this.curPage.sel = 0; // selected widget
-    this.curPage.background = undefined;
-    this.curPage.keyHandler = null;   // keyboard actions specific to a page
-    this.curPage.mouseHandler = null; // mouse actions specific to a page, for clicks outside the widgets
-    this.curPage.selTextBox = null; // a box where the text of the current selection can appearl,
-    this.curPage.mouseCaptureWidget = null; // if one widget captures the mouse, it gets exclusive messages from it
-    
-    this.blankScr();
-    this.curMenuDraw = null;
-    this.curMenuRemake = null; // the function to recreate the menu (after a resize);
-}
-
-
-C2d.prototype.setSelectionTextBox = function(box) {
-    var th = box.height;
-    this.curPage.selTextBox = box.expanded($MR(box.height/4)); // need to be bigger than the text due to the bottom of the 'g'
-    this.curPage.selTextBox.th = th;
-}
-
-////////////////////////////// widgets creation shortcuts /////////////////////////////////////////////////////////
-
-C2d.prototype.makeTextButton = function(text, x, y, height, width, callback, groupId) {
-    var m = ctx2d.measureText(text);
-    var r;
-    this.curPage.widgets.push(
-        r = new TextButton(text,
-            new Box(x, y, width, height),
-            new Widget(callback, this.curPage.widgets.length),
-            groupId            
-        )
-    );
-    return r;
-}
-
-C2d.prototype.makeImgToggleButton = function(imgOn, imgOff, text, initState, x, y, height, width, callback) {
-    var r;
-    this.curPage.widgets.push(
-        r = new ImgToggleButton(imgOn, imgOff, text, initState,
-            new Box(x, y, width, height),
-            new Widget(callback, this.curPage.widgets.length)
-        )
-    );
-    return r;
-    
-}
-
-// groupId is an object with sel: index of currently selected item, id: this widget's id
-C2d.prototype.makeImgButton = function(img, text, x, y, height, width, callback, groupId) {
-    var r;
-    this.curPage.widgets.push(
-        r = new ImgButton(img, text, new Box(x, y, width, height),
-                      new Widget(callback, this.curPage.widgets.length),
-                      groupId)
-        );
-    return r;
-}
-
-C2d.prototype.makeSlider = function(vmin, vmax, step, value, x, y, width, height, callback) {
-    var r;
-    return this.curPage.widgets.push(
-        r = new Slider(vmin, vmax, step, value, new Box(x, y, width, height),
-                   new Widget(callback, this.curPage.widgets.length)));
-    return r;
-}
-
-
-
-C2d.prototype.drawWidgets = function() {
-    if (this.curPage.widgets.length === 0)
-        return;
-    
-    for(var i = 0; i < this.curPage.widgets.length; ++i) {
-        var w = this.curPage.widgets[i];
-        w.draw(i === this.curPage.sel);
-    }
-    
-    var text = this.curPage.widgets[this.curPage.sel].text;
-    if (this.curPage.selTextBox && text) {
-        this.backgroundRect(this.curPage.selTextBox);
-        
-        ctx2d.fillStyle = "#ff3c00";
-        ctx2d.textAlign = "center"
-        // $MR(this.texth / 2)
-        this.setMenuFont(this.curPage.selTextBox.th);
-        ctx2d.fillText(text, this.curPage.selTextBox.xmid(), this.curPage.selTextBox.y + this.curPage.selTextBox.th);
-        ctx2d.textAlign = "start"
-    }
-}
-
-//const MENU_TEXTH = 42;
-//var INMENU_BACKGROUND = "rgba(0, 0, 128, 0.7)";
-//var INMENU_STROKE = "rgba(0, 0, 255, 0.7)"
-
-var INMENU_BACKGROUND = "rgba(0, 0, 0, 0.8)";
-var INMENU_STROKE = "rgba(128, 128, 128, 0.7)"
-
-
-// background - the color of unselected menu items
-C2d.prototype.preMenu = function(background) {
-    this.setup2dInputs();
-    this.clearScr();
-    this.widgetsBackground = background;
-    
-    var caller = arguments.callee.caller;
-    var args = caller.arguments;
-    this.curMenuRemake = function() { caller.apply(this, args) };
-}
-
-C2d.prototype.setMenuFont = function(th) {
-    if (!th) th = this.texth;
-    ctx2d.font = "bold " + $MR(th) + "px sans-serif"
-}
-
-
-C2d.prototype.resizeAdjust = function(w, h) {
-    this.texth = $MR(42*(w/900));
-    this.setMenuFont();
-    this.em = ctx2d.measureText("m").width;
-    this.en = ctx2d.measureText("n").width;
-    writeDebug("text height: " + this.texth + " em: " + this.em + " " + this.en);
-    
-    this.drawGameState(true); // don't draw the menus again
-    if (this.curMenuRemake)
-        this.curMenuRemake();
-}
-
-
-//************************************************ actual screens **********************************************************
 
 
 C2d.prototype.showStartScreen = function()
@@ -521,7 +14,7 @@ C2d.prototype.showStartScreen = function()
     
     var textWidth = 8*em;
 
-    var newGameBot = this.makeTextButton("New game", 20, ch - 6*th, th, textWidth, function() {
+    var newGameBot = this.wnd.makeTextButton("New game", 20, ch - 6*th, th, textWidth, function() {
         writeDebug("NewNew!")
         c2d.clearScr();
         c2d.mainMenu = C2d.prototype.showStartScreen; // and not the custom screen
@@ -529,14 +22,14 @@ C2d.prototype.showStartScreen = function()
             startGame(); // calls startLife
         }); 
     });
-    this.makeTextButton("How to play", 20, ch - 4.3*th, th, textWidth, function() {
+    this.wnd.makeTextButton("How to play", 20, ch - 4.3*th, th, textWidth, function() {
         c2d.instructionsScreen()
     });
-    this.makeTextButton("Custom level", 20, ch - 2.6*th, th, textWidth, function() {
+    this.wnd.makeTextButton("Custom level", 20, ch - 2.6*th, th, textWidth, function() {
         c2d.customLevelScreen();
     });
     
-    this.makeImgToggleButton($("#soundOnImg")[0], $("#soundOffImg")[0], "Sound", game.soundEnabled, cw-50-2*em, ch-50-2*em,
+    this.wnd.makeImgToggleButton($("#soundOnImg")[0], $("#soundOffImg")[0], "Sound", game.soundEnabled, cw-50-2*em, ch-50-2*em,
                              2.5*em, 2.5*em, function(isOn) {
        writeDebug("SetSnd " + isOn);
        game.enableSound(isOn);
@@ -617,16 +110,16 @@ C2d.prototype.levelComplete = function(compLvlNum, compLvl)
     var cx = $MR(ctx2d.canvas.width / 2), cy = $MR(ctx2d.canvas.height / 2);
     var en = this.en, th = this.texth, hth = $MR(th/2);
 
-    this.makeImgButton($("#againImg")[0], "This one again", cx-7*en, cy, 4*en, 4*en, function() {
+    this.wnd.makeImgButton($("#againImg")[0], "This one again", cx-7*en, cy, 4*en, 4*en, function() {
         c2d.clearScr();
         startLife(compLvl); // level is loaded becaue we just played this level
     });
     
-    this.makeImgButton($("#menuImg")[0], "Exit game", cx-2*en, cy, 4*en, 4*en, function() {
+    this.wnd.makeImgButton($("#menuImg")[0], "Exit game", cx-2*en, cy, 4*en, 4*en, function() {
         c2d.showStartScreen();
     });
 
-    var nextBot = this.makeImgButton($("#nextImg")[0], "Next level", cx+3*en, cy, 4*en, 4*en, function() {
+    var nextBot = this.wnd.makeImgButton($("#nextImg")[0], "Next level", cx+3*en, cy, 4*en, 4*en, function() {
         c2d.clearScr();
         if (compLvl === levels.length - 1) {// last level
             this.showStartScreen();
@@ -671,13 +164,13 @@ C2d.prototype.lifeEndScreen = function(inLvl, inLvlNum)
     var cx = $MR(ctx2d.canvas.width / 2), cy = $MR(ctx2d.canvas.height / 2);
     var th = this.texth, en = this.en;
 
-    var againBot = this.makeImgButton($("#againImg")[0], "Try again", cx-5*en, cy, 4*en, 4*en, function() {
+    var againBot = this.wnd.makeImgButton($("#againImg")[0], "Try again", cx-5*en, cy, 4*en, 4*en, function() {
         c2d.clearScr();
         if (inLvlNum !== -1)
             inLvl = inLvlNum;
         startLife(inLvl); // level is loaded becaue we just played this level
     });
-    this.makeImgButton($("#menuImg")[0], "Exit Game", cx+1*en, cy, 4*en, 4*en, function() {
+    this.wnd.makeImgButton($("#menuImg")[0], "Exit Game", cx+1*en, cy, 4*en, 4*en, function() {
         c2d.mainMenu();
     });
     
@@ -706,7 +199,7 @@ C2d.prototype.gameOverScreen = function(inLvl, inLvlNum)
     var cx = $MR(ctx2d.canvas.width / 2), cy = $MR(ctx2d.canvas.height / 2);
     var th = this.texth, en = this.en;
 
-    var menuBot = this.makeImgButton($("#menuImg")[0], "Back to menu", cx-2*en, cy, 4*en, 4*en, function() {
+    var menuBot = this.wnd.makeImgButton($("#menuImg")[0], "Back to menu", cx-2*en, cy, 4*en, 4*en, function() {
         c2d.mainMenu();
     });
     
@@ -743,14 +236,14 @@ C2d.prototype.verbosePauseScreen = function()
         game.setPaused(false);
     }
 
-    this.makeImgButton($("#resumeImg")[0], "Resume", cx-7*en, cy, 4*en, 4*en, function() {
+    this.wnd.makeImgButton($("#resumeImg")[0], "Resume", cx-7*en, cy, 4*en, 4*en, function() {
         resume();
     });
-    this.makeImgButton($("#menuImg")[0], "End game", cx-2*en, cy, 4*en, 4*en, function() {
+    this.wnd.makeImgButton($("#menuImg")[0], "End game", cx-2*en, cy, 4*en, 4*en, function() {
         game.isDemo = false;
         c2d.mainMenu();
     });
-    this.makeImgToggleButton($("#soundOnImg")[0], $("#soundOffImg")[0], "Sound", game.soundEnabled, cx+3*en, cy, 4*en, 4*en, function(isOn) {
+    this.wnd.makeImgToggleButton($("#soundOnImg")[0], $("#soundOffImg")[0], "Sound", game.soundEnabled, cx+3*en, cy, 4*en, 4*en, function(isOn) {
        writeDebug("SetSnd " + isOn);
        game.enableSound(isOn);
     });
@@ -847,11 +340,15 @@ C2d.prototype.customLevelScreen = function()
     var cw = ctx2d.canvas.width, ch = ctx2d.canvas.height;
     var cx = $MR(cw / 2), cy = $MR(ch / 2), th = this.texth, em = this.em, en = this.en;
 
-    var iis = $MR(ch/4.2);
-    var iiw = $MR(iis*0.8);
+    var iis = $MR(ch/4.2); // image space
+    var iiw = $MR(iis*0.8); // image width (and height)
+    var isp = $MR(c2d.em/4) // image outer space
     
     var scrSel = customSelect;
     
+    var modelsCont = this.wnd.makeContainer($MR(em-isp), $MR(0.08*ch), $MR(iis*4.8+ 2*isp), $MR(0.48*ch));
+    modelsCont.translateY = 0;
+
     for(var i = 0 ; i < levels.length; ++i) {
         var img = null;
         if (levels[i].icon !== null) {
@@ -859,7 +356,7 @@ C2d.prototype.customLevelScreen = function()
             img.src = levels[i].icon;
             img.onload = function() { c2d.drawWidgets(); }
         }
-        this.makeImgButton(img, "", em+iis*(i%5), th*1.2+iis*Math.floor(i/5), iiw, iiw, function(value) { return function() {
+        modelsCont.makeImgButton(img, "", iis*(i%5)+isp, iis*Math.floor(i/5)+isp, iiw, iiw, function(value) { return function() {
         //    scrSel = { iconSel:index, numEnemySel: levels[index].numPlayers, aiSel: levels[index].ai };
             scrSel.worldSel.sel = value;
             c2d.drawWidgets();
@@ -871,37 +368,37 @@ C2d.prototype.customLevelScreen = function()
     ctx2d.fillStyle = "#ff3c00"
     c2d.setMenuFont(th*0.7);
     ctx2d.fillText("Select World:", en, $MR(th*0.7));
-    var y2 = $MR(0.56*ch);
+    var y2 = $MR(0.68*ch);
     ctx2d.fillText("Number of Players:", en, y2);
-    var y3 = $MR(0.74*ch);
+    var y3 = $MR(0.81*ch);
     ctx2d.fillText("Difficulty:", en, y3);
-    var y4 = $MR(0.89*ch);
+    var y4 = $MR(0.94*ch);
     ctx2d.fillText("Speed:", en, y4);
 
     c2d.setMenuFont(th);
     ctx2d.textAlign = "center";
     
     for(var i = 1; i <= 6; ++i) {
-        this.makeTextButton(i, i*em*2, y2+0.3*th, th, en, function(value) { return function() {
+        this.wnd.makeTextButton(i, 11*en + i*em*1.5, y2-0.9*th, th, en, function(value) { return function() {
             scrSel.numPlayersSel.sel = value;
             c2d.drawWidgets();
         }}(i), new GroupItem(scrSel.numPlayersSel, i));
     }
 
     var aidiff = [ {txt:"easy", d:1}, {txt:"medium", d:3}, {txt:"hard", d:5}];
-    var sx = 2*em;
+    var sx = 7*en;
     for(var i = 0; i < aidiff.length; ++i) {
         var df = aidiff[i];
         var ln = en*(df.txt.length+1);
-        this.makeTextButton(df.txt, sx, y3+0.3*th, th, ln, function(value) { return function() {
+        this.wnd.makeTextButton(df.txt, sx, y3-0.9*th, th, ln, function(value) { return function() {
             scrSel.aiSel.sel = value;
             c2d.drawWidgets();
         }}(i), new GroupItem(scrSel.aiSel, i) );
         sx += ln+en;
     }
     
-    var percentBox = new Box(cw*0.64, 0.9*ch, 4.5*en, th);
-    var slider = this.makeSlider(50, 300, 5, customSelect.speedSel, 2*em, 0.9*ch, cw*0.5, th*1.3, function(v) {
+    var percentBox = new Box(cw*0.69, 0.88*ch, 4.5*en, th);
+    var slider = this.wnd.makeSlider(50, 300, 5, customSelect.speedSel, 6*en, 0.89*ch, cw*0.5, th*1.1, function(v) {
         //writeDebug(v);
         c2d.backgroundRect(percentBox);
         ctx2d.fillStyle = "#ff3c00"
@@ -910,13 +407,18 @@ C2d.prototype.customLevelScreen = function()
         ctx2d.textAlign = "center"
         customSelect.speedSel = v;
     });
-  
+
+    var scroll = this.wnd.makeScroll(400, 200, 0, modelsCont.drawScroll.x, modelsCont.drawScroll.y, 30, modelsCont.drawScroll.height, function(v) {
+        modelsCont.translateY = v;
+        c2d.drawWidgets();
+    });
+    c2d.curPage.wheelHandlers = [ {box:modelsCont.box, handler: function(e) { scroll.onWheelEvent(e) } } ];
     
-    this.makeImgButton($("#menuImg")[0], "Exit game", cw-5*en, ch-10*en, 4*en, 4*en, function() {
+    this.wnd.makeImgButton($("#menuImg")[0], "Exit game", cw-5*en, ch-10*en, 4*en, 4*en, function() {
         c2d.showStartScreen();
     });
 
-    this.makeImgButton($("#nextImg")[0], "Next level", cw-5*en, ch-5*en, 4*en, 4*en, function() {
+    this.wnd.makeImgButton($("#nextImg")[0], "Next level", cw-5*en, ch-5*en, 4*en, 4*en, function() {
         c2d.clearScr();
     
         worldLvl = scrSel.worldSel.sel;

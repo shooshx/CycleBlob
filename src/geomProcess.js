@@ -154,7 +154,7 @@ function createGridMeshBuffers(model, async, ondone, onprogress)
             // put a vertex between every two neighbots
             var basei = baseStarting[i] = addedVtx;
             // ne - current neighbor. nene - next neighbor
-            var ne = model.nei[i].t[myNeiList[0]], nene;
+            var ne = model.nei[i].t[myNeiList[0]];
             for (var c = 0; c < neiCount; ++c)
             {
                 var nene = model.nei[i].t[ne]; // next neighbor
@@ -281,18 +281,37 @@ function createGridMeshBuffers(model, async, ondone, onprogress)
 
 
 
-function indexDist(model, a, b)
-{
+function indexDist(model, a, b) {
     return vec3.distance(model.vtx[a], model.vtx[b]);
 }
+vec3.minwith = function(a, b) {
+    if (b[0] < a[0]) a[0] = b[0];
+    if (b[1] < a[1]) a[1] = b[1];
+    if (b[2] < a[2]) a[2] = b[2];        
+}
+vec3.maxwith = function(a, b) {
+    if (b[0] > a[0]) a[0] = b[0];
+    if (b[1] > a[1]) a[1] = b[1];
+    if (b[2] > a[2]) a[2] = b[2];
+}
+vec3.distance = function(a, b) {
+    return Math.sqrt((a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]) + (a[2]-b[2])*(a[2]-b[2]));
+}
+
 
 // read the data into the a proper mesh data and generate neighbor information
 function createMeshData(input, model) {
     model.vtx = [];
+    model.bbox = { min: vec3.create([99, 99, 99]), max: vec3.create([-99, -99, -99]) };
     for (var i = 0; i < input.vertexPositions.length; i += 3) {
-        model.vtx.push(vec3.create([input.vertexPositions[i], input.vertexPositions[i + 1], input.vertexPositions[i + 2]]));
+        p = vec3.create([input.vertexPositions[i], input.vertexPositions[i + 1], input.vertexPositions[i + 2]]);
+        model.vtx.push(p);
+        vec3.minwith(model.bbox.min, p);
+        vec3.maxwith(model.bbox.max, p);
     }
-    writeDebug(model.vtx.length + " vertices in world");
+
+    model.bbox.size = vec3.distance(model.bbox.min, model.bbox.max);
+    writeDebug(model.vtx.length + " vertices in world bbox=" + model.bbox.size);
     model.normals = [];
     if (input.vertexNormals) {
         for (var i = 0; i < input.vertexNormals.length; i += 3) {

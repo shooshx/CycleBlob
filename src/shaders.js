@@ -31,7 +31,7 @@ function getShader(gl, elem) {
     gl.compileShader(shader);
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        alert(gl.getShaderInfoLog(shader));
+        alert(gl.getShaderInfoLog(shader) + "\n" + innerElem.id);
         return null;
     }
 
@@ -43,7 +43,7 @@ function Program() {
 }
 
 
-Program.prototype.init = function(fragElem, vtxElem) {
+Program.prototype.init = function (fragElem, vtxElem) {
     var fragmentShader = getShader(gl, fragElem);
     var vertexShader = getShader(gl, vtxElem);
 
@@ -56,14 +56,43 @@ Program.prototype.init = function(fragElem, vtxElem) {
         alert("Could not initialise shaders");
         return null;
     }
+}
 
+Program.prototype.enableArrs = function (en) {
+    if (en) {
+        gl.enableVertexAttribArray(this.vertexPositionAttribute);
+        if (this.vertexNormalAttribute !== undefined)
+            gl.enableVertexAttribArray(this.vertexNormalAttribute);
+    }
+    else {
+        gl.disableVertexAttribArray(this.vertexPositionAttribute);
+        if (this.vertexNormalAttribute !== undefined)
+            gl.disableVertexAttribArray(this.vertexNormalAttribute);
+    }
+}
+
+
+Program.prototype.initBkgParams = function () {
+    gl.useProgram(this.prog);
+    this.vertexPositionAttribute = gl.getAttribLocation(this.prog, "aVertexPosition");
+    //gl.enableVertexAttribArray(this.vertexPositionAttribute);
+
+    this.pMatrixUniform = gl.getUniformLocation(this.prog, "uPMatrix");
+    this.mvMatrixUniform = gl.getUniformLocation(this.prog, "uMVMatrix");
+    this.timeUniform = gl.getUniformLocation(this.prog, "time");
+
+    //writeDebug(this.pMatrixUniform + "," + this.mvMatrixUniform + "," + this.vertexPositionAttribute);
+}
+
+// parameters for the normal shader used for most of the scene except the background
+Program.prototype.initNormParams = function() {
     gl.useProgram(this.prog);
 
     this.vertexPositionAttribute = gl.getAttribLocation(this.prog, "aVertexPosition");
-    gl.enableVertexAttribArray(this.vertexPositionAttribute);
+    //gl.enableVertexAttribArray(this.vertexPositionAttribute);
 
     this.vertexNormalAttribute = gl.getAttribLocation(this.prog, "aVertexNormal");
-    gl.enableVertexAttribArray(this.vertexNormalAttribute);
+    //gl.enableVertexAttribArray(this.vertexNormalAttribute);
 
     // this.textureCoordAttribute = gl.getAttribLocation(this.prog, "aTextureCoord");
     // gl.enableVertexAttribArray(this.textureCoordAttribute);
@@ -84,6 +113,27 @@ Program.prototype.init = function(fragElem, vtxElem) {
     this.globColorUniform = gl.getUniformLocation(this.prog, "uGlobColor");
     this.twoSidedUniform = gl.getUniformLocation(this.prog, "uTwoSided");
 
+    //writeDebug(this.pMatrixUniform + "," + this.mvMatrixUniform + "," + this.vertexPositionAttribute);
+}
+
+
+Program.current = null
+
+Program.use = function (prog) {
+    if (Program.current === prog)
+        return;
+    if (Program.current !== null)
+        Program.current.enableArrs(false)
+    if (prog === null || prog === undefined) {
+        gl.useProgram(null);
+        Program.current = null;
+    }
+    else {
+        gl.useProgram(prog.prog);
+        Program.current = prog;
+        if (Program.current !== null)
+            Program.current.enableArrs(true)
+    }
 }
 
 
@@ -98,6 +148,7 @@ Program.prototype.setMatrixUniforms = function() {
     mat4.transpose(normMat);
 
     gl.uniformMatrix4fv(this.nMatrixUniform, false, normMat);*/
+    
 }
 
 Program.prototype.setColor = function(r, g, b) {
@@ -133,3 +184,6 @@ Program.prototype.enableNormals = function(b) {
 
 }
 
+Program.prototype.setTime = function (v) {
+    gl.uniform1f(this.timeUniform, v);
+}

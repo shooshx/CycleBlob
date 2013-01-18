@@ -109,18 +109,18 @@ var VIDEO_EMBED = '<iframe title="YouTube video player" width="640" height="390"
 var GETWEBGL = "Check this website: <a href='http://get.webgl.org/'>http://get.webgl.org/</a> for more information.";
 var GET_N_VID = "<br/>" + GETWEBGL + "<br/><br/>" + VIDEO_EMBED;
 
-var MSG_FF_VER = 'Firefox ' + BrowserDetect.version + ' does not supprot WebGL<br/>' +
+var MSg_FF_VER = 'Firefox ' + BrowserDetect.version + ' does not supprot WebGL<br/>' +
                  "To play CycleBlob please upgrade to the latest version of <a href='"+FF_LINK+"' target=_blank>Firefox</a> (4.0 and above) or get <a href='"+CHROME_LINK+"' target=_blank>Google Chrome</a><br/>" + GET_ANY + GET_N_VID;
                  
-var MSG_CHROME_VER = 'Chrome ' + BrowserDetect.version + ' does not support WebGL<br/>' +                 
+var MSg_CHROME_VER = 'Chrome ' + BrowserDetect.version + ' does not support WebGL<br/>' +                 
                  "To play CycleBlob please upgrade to the latest version of <a href='"+CHROME_LINK+"' target=_blank>Chrome</a> (9.0 and above) or get <a href='"+FF_LINK+"' target=_blank>Mozilla Firefox</a><br/>" + GET_ANY + GET_N_VID;
                  
-var MSG_ALT_ANY = ALT_ANY + GET_N_VID;
+var MSg_ALT_ANY = ALT_ANY + GET_N_VID;
 
-var MSG_IE = 'Microsoft Internet Explorer (MSIE) does not support WebGL yet.<br/>' + ALT_ANY + "<br/>" + GET_ANY + GET_N_VID;
+var MSg_IE = 'Microsoft Internet Explorer (MSIE) does not support WebGL yet.<br/>' + ALT_ANY + "<br/>" + GET_ANY + GET_N_VID;
 
          
-var MSG_FF_FAIL = "Your version of Firefox (" + BrowserDetect.version + ") is supposed to support WebGL but an error occured while trying to use it</br>" +
+var MSg_FF_FAIL = "Your version of Firefox (" + BrowserDetect.version + ") is supposed to support WebGL but an error occured while trying to use it</br>" +
                   "Things you might try to do to fix this:</br><ul style='text-align:left; margin-bottom:0'>" + 
                   "<li>Write in the address 'about:config' in the address bar and press Enter. Filter for 'WebGL' in the config page and make sure it is not disabled.</li>" +
                   "<li>In the same page (about:config), set 'webgl.force-enabled' to 'true'</li>" +
@@ -129,7 +129,7 @@ var MSG_FF_FAIL = "Your version of Firefox (" + BrowserDetect.version + ") is su
                   "<li>" + GETWEBGL + "</li>" +
                   "<li>Try <a href='"+CHROME_LINK+"' target=_blank>Google Chrome</a>.</li></ul>" + GET_CHROME + "<br/>" + VIDEO_EMBED;
 
-var MSG_CHROME_FAIL = "Your version of Chrome (" + BrowserDetect.version + ") is supposed to support WebGL but an error occured while trying to use it</br>" +
+var MSg_CHROME_FAIL = "Your version of Chrome (" + BrowserDetect.version + ") is supposed to support WebGL but an error occured while trying to use it</br>" +
                   "Things you might try to do to fix this:</br><ul style='text-align:left; margin-bottom:0'>" + 
                   "<li>Update the display drivers of your computer. Some older drivers are known not to work properly.</li>" +
                   "<li>Write in the address 'about:gpu' in the address bar, press Enter and see if you detect some sort of error which prevents using hardware acceleration</li>" +
@@ -138,7 +138,7 @@ var MSG_CHROME_FAIL = "Your version of Chrome (" + BrowserDetect.version + ") is
 
 
 var TITLE_UNKNOWN_ERR = 'An Unknown error occured while initializing WebGL';
-var MSG_HAS_WEBGL = 'Your browser appears to support WebGL but there was an error using it' + "<br/>" + GETWEBGL + "<br/>" + VIDEO_EMBED;
+var MSg_HAS_WEBGL = 'Your browser appears to support WebGL but there was an error using it' + "<br/>" + GETWEBGL + "<br/>" + VIDEO_EMBED;
 
 /**
  * Creates a webgl context. If creation fails it will
@@ -160,25 +160,25 @@ var setupWebGL = function(canvas, opt_attribs, opt_onError) {
         var htmlm;
 
         if (BrowserDetect.browser == "Explorer") {
-            htmlm = makeFailHTML(TITLE_NO_SUPPORT, MSG_IE);
+            htmlm = makeFailHTML(TITLE_NO_SUPPORT, MSg_IE);
         }
         else if (BrowserDetect.browser == "Firefox") {
             if (BrowserDetect.version < 4.0)
-                htmlm = makeFailHTML(TITLE_NO_SUPPORT, MSG_FF_VER);
+                htmlm = makeFailHTML(TITLE_NO_SUPPORT, MSg_FF_VER);
             else
-                htmlm = makeFailHTML(TITLE_UNKNOWN_ERR, MSG_FF_FAIL);
+                htmlm = makeFailHTML(TITLE_UNKNOWN_ERR, MSg_FF_FAIL);
         }
         else if (BrowserDetect.browser == "Chrome") {
             if (BrowserDetect.version < 9.0)
-                htmlm = makeFailHTML(TITLE_NO_SUPPORT, MSG_CHROME_VER);
+                htmlm = makeFailHTML(TITLE_NO_SUPPORT, MSg_CHROME_VER);
             else
-                htmlm = makeFailHTML(TITLE_UNKNOWN_ERR, MSG_CHROME_FAIL);
+                htmlm = makeFailHTML(TITLE_UNKNOWN_ERR, MSg_CHROME_FAIL);
         }
         else if (window.WebGLRenderingContext) {
-            htmlm = makeFailHTML(TITLE_UNKNOWN_ERR, MSG_HAS_WEBGL);
+            htmlm = makeFailHTML(TITLE_UNKNOWN_ERR, MSg_HAS_WEBGL);
         }
         else {
-            htmlm = makeFailHTML(TITLE_NO_SUPPORT, MSG_ALT_ANY);
+            htmlm = makeFailHTML(TITLE_NO_SUPPORT, MSg_ALT_ANY);
         }
         
         container.innerHTML = htmlm;

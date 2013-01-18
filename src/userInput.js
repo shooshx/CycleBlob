@@ -184,7 +184,7 @@ function handleKeyDown(event) {
     if (gameConf.debug) {
         
         if (event.keyCode === KeyEvent.DOM_VK_E) {
-            startExplosion(userPlayer);
+            startExplosion(userPlayer, 1);
         }
         else if (event.keyCode === KeyEvent.DOM_VK_U) {
             ++game.userLivesCount;

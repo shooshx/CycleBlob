@@ -4,7 +4,7 @@ if (!writeDebug) {// did not include debug.js
     var clearDebug = function() {}
 }
 
-function renderFaces(model, defaultColor) {
+function renderFaces(model, defaultColor, prog) {
 
     if (model.triangles) {
         model.triangles.bind();
@@ -23,14 +23,14 @@ function renderFaces(model, defaultColor) {
     if (model.trianglesInline)
     {
         if (model.diffuseColor)
-            shaderProg.setColor(model.diffuseColor[0], model.diffuseColor[1], model.diffuseColor[2]);
+            prog.setColor(model.diffuseColor[0], model.diffuseColor[1], model.diffuseColor[2]);
         else if (defaultColor)
-            shaderProg.setColorv(defaultColor);
+            prog.setColorv(defaultColor);
             
         model.vertexBuffer.bind();
-        gl.vertexAttribPointer(shaderProg.vertexPositionAttribute, model.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(prog.vertexPositionAttribute, model.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
         model.vNormalBuffer.bind();
-        gl.vertexAttribPointer(shaderProg.vertexNormalAttribute, model.vNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(prog.vertexNormalAttribute, model.vNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
         gl.drawArrays(gl.TRIANGLES, 0, model.vertexBuffer.numItems);
     }
@@ -38,24 +38,25 @@ function renderFaces(model, defaultColor) {
 }
 
 function renderModel(model, defaultColor) {
+    var prog = Program.current;
     if (model.vertexBuffer) {
         model.vertexBuffer.bind();
-        gl.vertexAttribPointer(shaderProg.vertexPositionAttribute, model.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(prog.vertexPositionAttribute, model.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
     }
         // model.vTexCoord.bind();
         // gl.vertexAttribPointer(shaderProg.textureCoordAttribute, model.vTexCoord.itemSize, gl.FLOAT, false, 0, 0);
-    
+
     if (model.vNormalBuffer) {
         model.vNormalBuffer.bind();
-        gl.vertexAttribPointer(shaderProg.vertexNormalAttribute, model.vNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(prog.vertexNormalAttribute, model.vNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
     }
-    
-    shaderProg.setMatrixUniforms();
 
-    renderFaces(model);
+    prog.setMatrixUniforms();
+
+    renderFaces(model, undefined, prog);
     if (model.groups) {
         for(var gname in model.groups) {
-            renderFaces(model.groups[gname], defaultColor);
+            renderFaces(model.groups[gname], defaultColor, prog);
         }
     }
 }
@@ -104,8 +105,8 @@ function setupLighting() {
     }
 }
 
-function drawScene() {
-    
+function drawScene() 
+{
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -117,6 +118,8 @@ function drawScene() {
     setupLighting();
 
     mv.loadIdentity();
+    Program.use(shaderProg);
+
     
     // objects that are static in the scene
     for(var ri in world.staticDraw) {
@@ -132,6 +135,7 @@ function drawScene() {
         mv.multMatrix(userInput.rotationMatrix);
     }
 
+    
     shaderProg.setColor(1.0, 1.0, 1.0);
     shaderProg.setTwoSided(camera.twoSided);
     renderModel(world.model);
@@ -213,7 +217,11 @@ function drawScene() {
     for(var bi in world.bonuses) {
         world.bonuses[bi].draw();
     }
-        
+
+    Program.use(bkgProg);
+    world.background.draw();
+
+    Program.use(shaderProg);
   //  checkGLErrors("draw"); // huge performance hit apparently.
 
 }
@@ -236,11 +244,12 @@ function movePlayer(player)
             removePlayer(player, collide);
         }
     }
-        
+
+    ++player.stepCount;        
     // update map after everything?
-    world.map.set(lastPoint, player.id + 100, 0); // put wall in the previous point
+    world.map.set(lastPoint, player.id + 100, player.stepCount); // put wall in the previous point
     if (collide === undefined)
-        world.map.set(player.point, player.id, 0); // put bike in the current point
+        world.map.set(player.point, player.id, player.stepCount); // put bike in the current point
         
     return { dist:dist, collide:collide };
 }
@@ -316,7 +325,8 @@ function animate(elapsed) {
     for(var bi in world.bonuses) {
         world.bonuses[bi].advance(elapsed);
     }
-    
+
+    world.background.advance(elapsed);
     
     
     return doDraw;
@@ -333,8 +343,6 @@ var dispFps = function() {
             sum = 0;
             count = 0;
         }
-
-        
     }
 }();
 
@@ -468,7 +476,9 @@ PieceMap.prototype.unset = function (index) {
 
 
 var shaderProg = new Program();
+var bkgProg = new Program();
 
+// re-initialized in startLife()
 var world = {
 
     map: new PieceMap(),
@@ -509,7 +519,10 @@ function containterResize(event, bforce) {
     var WIDTH_MULT = 20; // changing the width in multiples of this
     
     drawDiv = document.getElementById("canvas-container");
-    var newWidth = Math.round(drawDiv.offsetWidth/WIDTH_MULT)*WIDTH_MULT;
+    // writeDebug("RESIZE " + drawDiv.offsetWidth + "," + drawDiv.offsetHeight + "|" + window.innerWidth + "," + window.innerHeight);
+    var wbyHeight = Math.round(window.innerHeight *0.94 / 0.7 / WIDTH_MULT) * WIDTH_MULT;
+    var wbyWidth = Math.round(window.innerWidth *0.94 / WIDTH_MULT) * WIDTH_MULT;
+    var newWidth = Math.min(wbyHeight, wbyWidth);
     
     if (newWidth === canvas.width && !bforce)
         return;
@@ -526,8 +539,13 @@ function containterResize(event, bforce) {
     writeDebug("canvas resized: " + canvas.width + " x " + canvas.height);
 }
 
+function hack() {
+    game.userLivesCount=10
+}
 
 function webGLStart() {
+    document.getElementById('shadersFrame').src = "shaders.html"
+
     canvas = document.getElementById("game-canvas");
 
     if (!initGL(canvas))
@@ -539,7 +557,13 @@ function webGLStart() {
     containterResize(null, true);
     c2d.showStartScreen(ctx2d); // sets up the screen and returns immediately
 
-    shaderProg.init($('#shadersFrame').contents().find('#phong-fs'), $('#shadersFrame').contents().find('#phong-vs'))
+
+    shaderFrame = $('#shadersFrame').contents();
+    shaderProg.init(shaderFrame.find('#phong-fs'), shaderFrame.find('#phong-vs'));
+    shaderProg.initNormParams();
+    bkgProg.init(shaderFrame.find('#bkg-fs'), shaderFrame.find('#bkg-vs'));
+    bkgProg.initBkgParams();
+    Program.use(shaderProg);
     
     window.onresize = containterResize;
     
@@ -554,9 +578,11 @@ function webGLStart() {
     loadModel("models/bikePlayer2.json", "inlined", "bike", loadedResource); 
     loadModel("models/lifeWheel.json", "indexed", "life", loadedResource);
     
-
     resources.explode = { ring:{} };
     makeExplosionGeom(resources.explode);
+    resources.background = {};
+    makeBackground(resources.background);
+
     initSounds();
     
 //    for(var i = 0; i < 100; ++i)

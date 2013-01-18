@@ -159,6 +159,8 @@ var PlayerColors = [
 ];
 
 function Wall() {
+    // the queue of points is needed because the point the bike is on is not the point where we start to draw wall
+    // the wall is started POINT_DELAY steps after the bike
     this.queue = [];
     this.pntRecord = []; // a record of the indexes of the world points the wall passes on
     this.standing = true;
@@ -190,7 +192,7 @@ function Player(id, inmodel, startPoint) {
     this.selDir = Directions.Up; // direction the user selects he wants to go next
     
     this.wall = new Wall();
-    this.ai = null; // computer controlled or user controlled (inited in startLife
+    this.ai = null; // computer controlled or user controlled (inited in startLife)
     this.sfx = { explode:null, wall_decent:null };  // if not null, these is the instances of the ongoing special effects
 
     this.lastMadeMoves = 0; // how many moves I did in the last ai check
@@ -205,8 +207,9 @@ function Player(id, inmodel, startPoint) {
     // the wall building uses this to interpolate between two points behind the bike.
     
     this.lastMvDist = 1;
-    
-    this.turnCallback = null; // if not null, called when a turn is made
+
+    this.turnCallback = null; // if not null, called when a turn is made (for sound)
+    this.stepCount = 0; // how many steps we did. (for wall count used by AI)
     
     // needs to be last
     this.selDir.move.call(this); // align to surface (set the normal, right and up)

@@ -181,7 +181,7 @@ function LifeBonus(index) {
     this.index = index;
     this.occupy = nei;    
     for(var ni in this.occupy)
-        world.map.set(this.occupy[ni], 1000 + index)
+        world.map.set(this.occupy[ni], 1000 + index, 0)
     
     this.normal = world.model.normals[this.point];
     this.forward = vec3.normalize(vec3.nsubtract(world.model.vtx[this.point], world.model.vtx[nei[1]])); // an estimate, nor really perpendicular
@@ -199,6 +199,7 @@ function LifeBonus(index) {
 LifeBonus.prototype.getColor = function(angle) {
     return hslToRgb(angle/360, 1, 0.5);
 }
+
 
 LifeBonus.prototype.draw = function() {
     mv.pushMatrix();

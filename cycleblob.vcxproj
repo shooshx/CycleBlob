@@ -61,6 +61,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="about.php" />
+    <None Include="build_release.py" />
     <None Include="contact.php" />
     <None Include="favicon.ico" />
     <None Include="page.css" />
@@ -68,6 +69,7 @@
     <None Include="release.html" />
     <None Include="shaders.html" />
     <None Include="src\aiControl.js" />
+    <None Include="src\background.js" />
     <None Include="src\browserDetect.js" />
     <None Include="src\build_number.js" />
     <None Include="src\debug.js" />

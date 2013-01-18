@@ -82,6 +82,7 @@ function startLife(lvlsel) {
         lives: new LifesRenderable(userPlayer)
     };
     world.bonuses = [];
+    world.background = new Background(resources.background, world.model.bbox.size * 0.28);
     
     world.ready = true;
     enable3d(true)
@@ -92,16 +93,16 @@ function startLife(lvlsel) {
 
 worldModels={
    // cube:           { file: "models/cube3.json",       eyeDist:3.3   },
-    cube:           { file: "modelsz/cube5quads.jsonz",       eyeDist:3.3   },
-    triCorner:      { file: "modelsz/triCorner4.jsonz",       eyeDist: 7 },
-    plus:           { file: "modelsz/plus4q.jsonz",           eyeDist: 7 },
-    dblsofa:        { file: "modelsz/dbl_sofa_soft_4q.jsonz", eyeDist: 3.3 },
-    softsofa:       { file: "modelsz/sofa4q_soft.jsonz",      eyeDist: 3.54 }, // nice
-    dDiamond:       { file: "modelsz/distortDiamond5q.jsonz", eyeDist: 4    }, // nice
-    torus:          { file: "modelsz/torus_100_50s.jsonz",    eyeDist: 3.66 }, // fun
-    tetra:          { file: "modelsz/tetra1_4q.jsonz",        eyeDist: 3.4  },
-    mobius:         { file: "modelsz/mobius_10r_3q.jsonz",    eyeDist: 1.0  },
-    rotDounut:      { file: "models/rot_dounut2.json",         eyeDist: 4 }
+    "cube":           { file: "modelsz/cube5quads.jsonz",       eyeDist:3.3   },
+    "triCorner":      { file: "modelsz/triCorner4.jsonz",       eyeDist: 7 },
+    "plus":           { file: "modelsz/plus4q.jsonz",           eyeDist: 7 },
+    "dblsofa":        { file: "modelsz/dbl_sofa_soft_4q.jsonz", eyeDist: 3.3 },
+    "softsofa":       { file: "modelsz/sofa4q_soft.jsonz",      eyeDist: 3.54 }, // nice
+    "dDiamond":       { file: "modelsz/distortDiamond5q.jsonz", eyeDist: 4    }, // nice
+    "torus":          { file: "modelsz/torus_100_50s.jsonz",    eyeDist: 3.66 }, // fun
+    "tetra":          { file: "modelsz/tetra1_4q.jsonz",        eyeDist: 3.4  },
+    "mobius":         { file: "modelsz/mobius_10r_3q.jsonz",    eyeDist: 1.0  },
+    "rotDounut":      { file: "models/rot_dounut2.json",        eyeDist: 4 }
 //sofa:           { file: "modelsz/sofa4q.jsonz",           eyeDist: 4    },
 //triCornerOut:   { file: "modelsz/triCornerOut4.jsonz",    eyeDist: 6.95 },
   //  squashSofa:     { file: "models/squashSofa5q.json",     eyeDist: 2.78 }, // confusing, sickening

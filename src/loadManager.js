@@ -70,39 +70,6 @@ function processWorldModel(loadedName, async) {
     );
 }
 
-/*
-function processWorldModel2(loadedName, async) {
-    updateProgress(loadedName, "processing");
-    var rec = resources[loadedName];
-    var model = {};
-
-    var _start = new Date().getTime();
-    writeDebug("start " + loadedName);
-        
-    doWork( {func: "makeWorldSync", input:rec.input}, function(data) {
-        if (!(data.vertexBuffer instanceof Float32Array)) { // chrome bug doesn't preserve typed arrays
-            data.vertexBuffer = new Float32Array(data.vertexBuffer);
-            data.vNormalBuffer = new Float32Array(data.vNormalBuffer);
-            data.triangles = new Uint16Array(data.triangles);
-        }
-        
-        data.vertexBuffer = GLBuffer.Data(gl.ARRAY_BUFFER, data.vertexBuffer, gl.STATIC_DRAW, 3);
-        data.vNormalBuffer = GLBuffer.Data(gl.ARRAY_BUFFER, data.vNormalBuffer, gl.STATIC_DRAW, 3);
-        data.triangles = GLBuffer.Data(gl.ELEMENT_ARRAY_BUFFER, data.triangles, gl.STATIC_DRAW, 1);
-
-        rec.model = data;
-        writeDebug("done " + loadedName + " " + (new Date().getTime() - _start));
-        
-        updateProgress(loadedName, null); // may call workProgress.ondone which may lead to startLife
-    },
-    workProgress.onprogress
-    );
-    
-    
-}*/
-
-//processWorldModel = processWorldModel2; // process with worker thread. Chrome crashes due to copies of data
-
 
 function deleteModel(name) {
     if (!resources[name] || !resources[name].model)

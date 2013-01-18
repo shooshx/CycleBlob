@@ -11,7 +11,7 @@ var AiLevels = [
 // created in startLife
 function Ai(player, level)
 {
-    this.player = player;
+    this.player = player; // player object
     var ailevel = AiLevels[level];
     
     this.stepsAhead = ailevel.stepsAhead;
@@ -36,7 +36,9 @@ function isOccupied(point) {
     return (w !== undefined && w >= 0) // (occupied) can be equal to 0.. for player 0
 }
 
-Ai.prototype.turnToAvailableSide = function(nei)
+
+
+Ai.prototype.turnToAvailableSide = function(nei, fwdBlocked)
 {
     this.occRight = isOccupied(nei.toRight); 
     this.occLeft = isOccupied(nei.toLeft);
@@ -45,7 +47,8 @@ Ai.prototype.turnToAvailableSide = function(nei)
         return; // we're screwed, nothing to do but die.
     if (!this.occRight && !this.occLeft)
     { // both are clear, choose one
-     
+        if (fwdBlocked && this.checkWallHeading(nei)) // returns true if made a decision
+            return;
         if (this.checkFarBlocks()) // returns true if made a decision
             return; 
         if (randomChoise(0.5))
@@ -99,6 +102,41 @@ function countFree(vw, togo, went) {
     return went;
 }
 
+function pieceIsPlayer(piece, playerId) {
+    return piece >= 100 && piece < 200 && (piece - 100 == playerId);
+}
+
+Ai.prototype.checkWallHeading = function (nei) {
+    var thisPlayerId = this.player.id;
+    var fwdVal = world.map.get(nei.toFwd);
+    var fwdPiece = PieceMap.piece(fwdVal);
+    if (!pieceIsPlayer(fwdPiece, thisPlayerId)) {
+        return false; // only consider my wall
+    }
+    var fwdWc = PieceMap.meta(fwdVal); // wall-count
+
+    var p = this.player.point, l = this.player.last.point;
+    this.look.init(p, l).goLeft();
+    this.look.goRight();
+    var leftPnt = this.look.point;
+    this.look.init(p, l).goRight();
+    this.look.goLeft();
+    var rightPnt = this.look.point;
+
+    var leftVal = world.map.get(leftPnt), rightVal = world.map.get(rightPnt);
+    var leftPiece = PieceMap.piece(leftVal), rightPiece = PieceMap.piece(rightVal);
+    var leftWc = PieceMap.meta(leftVal), rightWc = PieceMap.meta(rightVal);
+    writeDebug("wall-h " + leftPiece + ":" + leftWc + " - " + rightPiece + ":" + rightWc);
+    if (!pieceIsPlayer(leftPiece, thisPlayerId) || !pieceIsPlayer(rightPiece, thisPlayerId))
+        return false;
+
+    if (leftWc < fwdWc)
+        this.turnLeft();
+    else
+        this.turnRight();
+    return true;
+}
+
 
 // advance several steps forward, right and left to see if there is something blocking
 Ai.prototype.checkFarBlocks = function()
@@ -129,13 +167,13 @@ Ai.prototype.moveControl = function(world)
     var occFwd = isOccupied(nei.toFwd);
     if (occFwd) // the point up ahead is occupied
     {
-        this.turnToAvailableSide(nei);
+        this.turnToAvailableSide(nei, true);
         return; 
     }
     
     // random turning for no reason (2% chance)
     if (randomChoise(2)) {
-        this.turnToAvailableSide(nei);
+        this.turnToAvailableSide(nei, false);
         return;
     }
     

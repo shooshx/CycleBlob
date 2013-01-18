@@ -1,13 +1,41 @@
 <!doctype html>
 <html><head>
     <meta http-equiv="Cache-Control" content="no-cache">
+    <meta http-Equiv="Pragma" Content="no-cache">
+    <meta http-Equiv="Expires" Content="0">
 </head>
+
+<script id="phong-vs" type="x-shader/x-vertex">
+    precision highp float;
+      
+    attribute vec3 aVertexPosition;
+    attribute vec3 aVertexNormal;
+    // attribute vec2 aTextureCoord;
     
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+    //uniform mat4 uNMatrix;
+    
+    // varying vec2 vTextureCoord;
+    varying vec3 vTransformedNormal;
+    varying vec3 vPosition;
+    
+    void main(void) {
+        vec4 tpos = uMVMatrix * vec4(aVertexPosition, 1.0);
+        vPosition = tpos.xyz;
+        gl_Position = uPMatrix * tpos;
+
+        //  vTextureCoord = aTextureCoord;
+        tpos = uMVMatrix * vec4(aVertexNormal, 0.0);
+        vTransformedNormal = tpos.xyz;
+    }
+</script>    
+
 <script id="phong-fs" type="x-shader/x-fragment">
     precision highp float;
     // varying vec2 vTextureCoord;
-    varying vec4 vTransformedNormal;
-    varying vec4 vPosition;
+    varying vec3 vTransformedNormal;
+    varying vec3 vPosition;
     
     uniform bool uUseLighting;
     uniform bool uTwoSided;
@@ -23,9 +51,10 @@
         vec3 lightWeighting;
         if (!uUseLighting) {
             lightWeighting = vec3(1.0, 1.0, 1.0);
-        } else {
-            vec3 lightDirection = normalize(uPointLightingLocation - vPosition.xyz);
-            vec3 normal = normalize(vTransformedNormal.xyz);
+        } 
+        else {
+            vec3 lightDirection = normalize(uPointLightingLocation - vPosition);
+            vec3 normal = normalize(vTransformedNormal);
           
             float specularLightWeighting = 0.0;
           
@@ -34,8 +63,7 @@
                 diffuseLightWeighting = abs(diffuseLightWeighting);
             diffuseLightWeighting = max(diffuseLightWeighting, 0.0);
             
-            lightWeighting = uAmbientColor
-              + uPointLightingDiffuseColor * diffuseLightWeighting;
+            lightWeighting = uAmbientColor + uPointLightingDiffuseColor * diffuseLightWeighting;
         }
         
         gl_FragColor = vec4(uGlobColor.rgb * lightWeighting, uGlobColor.a);
@@ -43,30 +71,58 @@
     }
 </script>
 
-<script id="phong-vs" type="x-shader/x-vertex">
+<script id="bkg-vs" type="x-shader/x-vertex">
     precision highp float;
-      
     attribute vec3 aVertexPosition;
-    attribute vec3 aVertexNormal;
-    // attribute vec2 aTextureCoord;
-    
     uniform mat4 uMVMatrix;
     uniform mat4 uPMatrix;
-    //uniform mat4 uNMatrix;
-    uniform vec4 uGlobColor;
-    
-    // varying vec2 vTextureCoord;
-    varying vec4 vTransformedNormal;
-    varying vec4 vPosition;
-    
-    void main(void) {
-        vPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
-        gl_Position = uPMatrix * vPosition;
+    varying vec3 pos;
 
-        //  vTextureCoord = aTextureCoord;
-        //vTransformedNormal = uNMatrix * vec4(aVertexNormal, 1.0);
-        vTransformedNormal = uMVMatrix * vec4(aVertexNormal, 0.0);
+    void main(void) {
+        pos =  aVertexPosition;
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
     }
+</script>    
+
+<script id="bkg-fs" type="x-shader/x-fragment">
+precision highp float;
+varying vec3 pos;
+uniform float time;
+
+#define L1 0.2,0.2,1.0, 1.0,3.0,+1.0,0.07, 5.0,+1.0,0.5, vec3(0.2,0.0,0.5)
+#define L2 0.2,0.2,1.0, 0.0,2.1,+1.5,0.05, 7.0,-0.5,0.2, vec3(0.2,0.0,0.5)
+#define L3 -0.2,-0.2,1.0, 0.0,2.5,+1.1,0.1, 6.0,-1.0,0.2, vec3(0.1,0.0,0.4)
+#define L4 -0.2,-0.2,1.0, 1.0,3.5,-1.1,0.06, 8.0,1.0,0.3, vec3(0.1,0.0,0.4)
+
+float mfmod(float x, float y) {
+	return x - y * floor(x/y);
+}
+
+vec3 makeLine(float ax, float ay, float az, 
+              float hOffs, float hRep, float hTimeMult, float hSlit, 
+              float dPiDiv, float dTimeMult, float dSlit,
+		    vec3 color,
+		    float t, float at) 
+{
+	bool p = true;
+	float a = az*pos.z + ay*pos.y + ax*pos.x;
+	p = p && (mfmod(abs(a + t*hTimeMult) + hOffs, hRep) < hSlit);
+	float deg = mfmod(abs(at + t*dTimeMult), 3.14126 / dPiDiv);
+	p = p && (deg < dSlit);
+	return float(p) * color;
+}
+
+void main() {
+	float t = time / 4.0;
+	vec3 c = vec3(0.0, 0.0, 0.0);
+	float at = atan(pos.x / pos.y);
+	c += makeLine(L1, t, at);
+	c += makeLine(L2, t, at);		
+	c += makeLine(L3, t, at);		
+	c += makeLine(L4, t, at);		
+
+	gl_FragColor = vec4(c, 1.0);
+}
 </script>
     
 <body></body></html>

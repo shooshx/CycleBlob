@@ -88,6 +88,10 @@
     <None Include="contact.php">
       <Filter>html</Filter>
     </None>
+    <None Include="build_release.py" />
+    <None Include="src\background.js">
+      <Filter>js</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="js">

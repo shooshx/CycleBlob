@@ -25,10 +25,12 @@
 <script type="text/javascript" src="src/aiControl.js"></script>
 <script type="text/javascript" src="src/sfx.js"></script>
 <script type="text/javascript" src="src/viewPoint.js"></script>
+<script type="text/javascript" src="src/widgets2d.js"></script>
 <script type="text/javascript" src="src/screens2d.js"></script>
 <script type="text/javascript" src="src/build_number.js"></script>
 <script type="text/javascript" src="src/gameControl.js"></script>
 <script type="text/javascript" src="src/loadManager.js"></script>
+<script type="text/javascript" src="src/background.js"></script>
 <script type="text/javascript" src="src/main.js"></script>
 
 <!--<script type="text/javascript" src="worker.js"></script> <!-- here just for listing in the debugger -->
@@ -74,14 +76,18 @@ $(function() {
     slideval3 = 0;
     
     acolor = Raphael.colorwheel($("#acolor"), 150);
-    acolor.onchange(function(c) { $("#acoltext").text(c.hex); if (acolor.onchange2) acolor.onchange2(); });
+    acolor.onchange(function(c) { $("#acoltext").val(c.hex); if (acolor.onchange2) acolor.onchange2(); });
+    $("#acoltext").change(function() { acolor.color($("#acoltext").val()); })
     acolor.color("#Fff");
     bcolor = Raphael.colorwheel($("#bcolor"), 150);
-    bcolor.onchange(function(c) { $("#bcoltext").text(c.hex); if (bcolor.onchange2) bcolor.onchange2(); });
+    bcolor.onchange(function(c) { $("#bcoltext").val(c.hex); if (bcolor.onchange2) bcolor.onchange2(); });
+    $("#bcoltext").change(function() { bcolor.color($("#bcoltext").val()); })
     bcolor.color("#F00");
     ccolor = Raphael.colorwheel($("#ccolor"), 150);
-    ccolor.onchange(function(c) { $("#ccoltext").text(c.hex); if (ccolor.onchange2) ccolor.onchange2(); });
+    ccolor.onchange(function(c) { $("#ccoltext").val(c.hex); if (ccolor.onchange2) ccolor.onchange2(); });
+    $("#ccoltext").change(function() { ccolor.color($("#ccoltext").val()); })
     ccolor.color("#F00");
+    // use with acolor.color().hex
 });
 
 function writeModel(vtxBuf, normBuf, triBuf) {
@@ -187,9 +193,9 @@ function writeModelStrip(vtxBuf, normBuf, triBuf) {
             </tbody>
         </table>
         <table>
-            <tr><td>a:  <span id="acoltext"></span></td>
-                <td>b:  <span id="bcoltext"></span></td>
-                <td>c:  <span id="ccoltext"></span></td></tr>
+            <tr><td>a:  <input id="acoltext" type="text"></input></td>
+                <td>b:  <input id="bcoltext" type="text"></input></td>
+                <td>c:  <input id="ccoltext" type="text"></input></td></tr>
             <tr><td><div class="color" id="acolor"></div></td>
                 <td><div class="color" id="bcolor"></div></td>
                 <td><div class="color" id="ccolor"></div></td>
