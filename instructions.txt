@@ -1,2 +1,10 @@
-install node.js installer for windows
-extract node-modules to this directory where the build script is
+install mingw, add msys package (install cygwin, default packages)
+download nodejs executable for windows
+extract node-modules.zip to the git root
+copy node.exe to C:\MinGW\msys\1.0\bin (C:\cygwin64\bin)
+run C:\MinGW\msys\1.0\msys.bat  /  cygwin terminal
+in terminal:
+  cd to the git root /c/projects/webgl/cycleblob/work (/cygdrive/c/projects/webgl/cycleblob/work)
+    where \build is
+  run ./build/build_release.sh
+

@@ -192,8 +192,15 @@ function LifeBonus(index) {
     this.angley = 0;
     this.elapsed = 0;
     this.inflate = 0; // range [0, 1]
-    c2d.addMessage("Life bonus appeared");
-    
+    this.active = true;
+    this.removeElapsed = -1; // remove animation
+    this.alpha = null;
+    c2d.addMessage("Life bonus appeared");   
+}
+
+LifeBonus.prototype.startRemove = function() {
+    this.removeElapsed = 0;
+    this.alpha = 1.0;
 }
 
 LifeBonus.prototype.getColor = function(angle) {
@@ -216,15 +223,26 @@ LifeBonus.prototype.draw = function() {
     mv.scale(s * this.inflate);
     mv.rotateY(this.anglex);
     mv.rotateX(this.angley);
-    
-    shaderProg.setColorv(this.getColor(this.anglex));
+    color = this.getColor(this.anglex)
+    if (this.alpha == null) {
+        shaderProg.setColorv(color);
+    }
+    else {
+        gl.enable(gl.BLEND);
+        shaderProg.setColor4(color[0], color[1], color[2], this.alpha);
+    }
     
     renderModel(resources.life);
+    
+    if (this.alpha != null) {
+        gl.disable(gl.BLEND);
+    }
     
     mv.popMatrix();
 }
 
 LifeBonus.INFLATE_TIME = 500; // time it takes for the bonus to grow from tiny to full size
+LifeBonus.REMOVE_TIME = 500; // time it takes for the bonus to be removed after it is taken
 
 LifeBonus.prototype.advance = function(elapsed) {
     LifesRenderable.prototype.rotate.call(this, elapsed);
@@ -233,8 +251,18 @@ LifeBonus.prototype.advance = function(elapsed) {
         this.elapsed = Math.min(this.elapsed + elapsed, LifeBonus.INFLATE_TIME);
         this.inflate = this.elapsed * (1/LifeBonus.INFLATE_TIME);
     }
+    else if (this.removeElapsed != -1) {
+        this.removeElapsed = Math.min(this.removeElapsed + elapsed, LifeBonus.REMOVE_TIME);
+        var et = this.removeElapsed * (1/LifeBonus.REMOVE_TIME)
+        this.inflate = 1 + 3 * et;
+        this.alpha = 1 - et;
+        if (et >= 1) {
+            return false; // remove the bonus item. 
+        }
+    }
     else
         this.inflate = 1;
+    return true;
 }
 
 // called when player takes this bonus
@@ -246,7 +274,8 @@ LifeBonus.prototype.action = function(player) {
     
     for(var ni in this.occupy)
         world.map.unset(this.occupy[ni]);
-    delete world.bonuses[this.index];
+    //delete world.bonuses[this.index];
+    world.bonuses[this.index].startRemove()
     
     playBonusSound(player);
     c2d.addMessage(player.prettyName() + " found a life bonus");

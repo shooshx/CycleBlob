@@ -135,7 +135,9 @@ function C2d() {
     this.has3dContent = false;
     this.render3d = [];  // 3d renderables
     this.mainMenu = null; // points to the function which draw the menu from which we came. either the start menu or the custom level menu
-
+    this.menuAnim = null;
+    
+    // TBD - move this to the main anim func...
     window.setInterval(function () { c2d.checkMessageQueue(); }, 200);
 }
 
@@ -611,6 +613,8 @@ C2d.prototype.drawWidgets = function () {
     this.wnd.draw(this.curPage.sel)
     
     // if the selected widget has associated text, display the text win the text box
+    if (this.curPage.widgets.length == 0)
+        return // can happen if the dialog was cleared
     var text = this.curPage.widgets[this.curPage.sel].text;
     if (this.curPage.selTextBox && text) {
         this.backgroundRect(this.curPage.selTextBox);

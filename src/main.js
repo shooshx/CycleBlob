@@ -323,11 +323,16 @@ function animate(elapsed) {
         world.staticDraw[si].advance(elapsed);
     }
     for(var bi in world.bonuses) {
-        world.bonuses[bi].advance(elapsed);
+        if (!world.bonuses[bi].advance(elapsed)) {
+            delete world.bonuses[bi]
+        }
     }
 
-    world.background.advance(elapsed);
+    if (!game.isPaused() || game._startPause) // on the start we want to animate the back
+        world.background.advance(elapsed); // 3d background stripes
     
+    if (c2d.menuAnim)
+        c2d.menuAnim(elapsed)
     
     return doDraw;
     //writeDebug(elapsed + " " + iterCount );
@@ -390,7 +395,8 @@ function tick() {
     if (enabled3d) // enabled3d can change in animate
         drawScene();
     
-    if (gameConf.printFps) dispFps(elapsed);
+    if (gameConf.printFps)
+        dispFps(elapsed);
 
 }
 
@@ -401,6 +407,7 @@ function deployBonus() {
     if (!world.ready || !resources._ready || !enabled3d || game.isPaused())
         return;
     
+    //var chance = 100
     var chance = (world.bonuses.length > 0)?0.2:3
     // 5% chance every 500 msec is 1 in 10 sec
     // 2% chance every 500 msec is 1 in 25 sec

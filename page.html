@@ -36,7 +36,7 @@
 <!--<script type="text/javascript" src="worker.js"></script> <!-- here just for listing in the debugger -->
 
 <script type="text/javascript">
-    enableDebug(); 
+    enableDebug(); // use writeDebug()
 </script>
 
 <script src="src/colorwheel/raphael-1.3.1-min.js"></script>
@@ -143,21 +143,33 @@ function writeModelStrip(vtxBuf, normBuf, triBuf) {
         -->
         <script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script><fb:like href="http://cycleblob.com/" layout="button_count" show_faces="false" width="70" font="" colorscheme="dark"></fb:like>
     </div>
-    <audio id="turnSound1" src="sound/turn5.ogg" preload="auto"></audio>
-    <audio id="powerupSound" src="sound/powerup2.ogg" preload="auto"></audio>
-    <audio id="crashSound" src="sound/crash2.ogg" preload="auto"></audio>
-    <audio id="coinUp" src="sound/coin_up3.ogg" preload="auto"></audio>
+    <audio id="turnSound1" preload="auto">
+        <source src="sound/turn5.ogg" type="audio/ogg"></source>
+        <source src="sound/turn5.mp3" type="audio/mpeg"></source>
+    </audio>
+    <audio id="powerupSound" preload="auto">
+        <source src="sound/powerup2.ogg" type="audio/ogg"></source>
+        <source src="sound/powerup2.mp3" type="audio/mpeg"></source>
+    </audio>
+    <audio id="crashSound" preload="auto">
+        <source src="sound/crash2.ogg" type="audio/ogg"></source>
+        <source src="sound/crash2.mp3" type="audio/mpeg"></source>
+    </audio>
+    <audio id="coinUp" preload="auto">
+        <source src="sound/coin_up3.ogg" type="audio/ogg"></source>
+        <source src="sound/coin_up3.mp3" type="audio/mpeg"></source>
+    </audio>
     
     <img id="soundOnImg" src="img/speaker_on.svg" style="display:none"></img>
     <img id="soundOffImg" src="img/speaker_off.svg" style="display:none"></img>
-    <img id="titleTextImg" src="img/title_text8.svg" style="display:none"></img>
+    <img id="titleTextImg" src="img/title_text9.svg" style="visibility:hidden"></img> <!--IE11 doesn't know the size without this style-->
     <img id="againImg" src="img/icon_Refresh.png" style="display:none"></img>
     <img id="resumeImg" src="img/icon_Playb.png" style="display:none"></img>
     <img id="menuImg" src="img/icon_Desktop.png" style="display:none"></img>
     <img id="nextImg" src="img/icon_Forward.png" style="display:none"></img>
 
-    <img id="instructImg" src="img/instructions3.svgz" style="display:none"></img> <!-- missing the header image -->
-    <img id="instructHeader" src="img/instructions_header.png" style="display:none"></img> <!-- missing the header image -->
+    <img id="instructImg" src="img/instructions3.svgz" style="visibility:hidden"></img> <!-- missing the header image -->
+    <img id="instructHeader" src="img/instructions_header.png" style="display:none"></img>
 
 <!-- debugging UI -->
     <link rel="stylesheet" href="ui/themes/base/jquery.ui.all.css">

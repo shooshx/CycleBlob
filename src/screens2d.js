@@ -267,8 +267,25 @@ C2d.prototype.verbosePauseScreen = function()
         return true;
     }
     
-    this.drawGameState();
+    this.fadeIn()
+    //this.drawGameState();
 }
+
+C2d.prototype.fadeIn = function()
+{   
+    canvas2d.style.opacity = 0
+    this.menuAnim = function(elapsed) {
+        op = parseFloat(canvas2d.style.opacity) + elapsed * 0.008
+        if (op >= 1) {
+            op = 1
+            c2d.menuAnim = null
+        }
+        //writeDebug(op)
+        canvas2d.style.opacity = op
+        this.drawGameState();    
+    }    
+}
+
 
 C2d.prototype.loadingScreen = function(pc)
 {
@@ -774,16 +791,20 @@ LifesRenderable.ROTX_SPEED = 90 / 1000;
 LifesRenderable.ROTY_SPEED = 180 / 1000;
 // a pass is either a death or a new life
 LifesRenderable.PASS_PEAK_LIGHT = 3;
-LifesRenderable.PASS_PEAK_TIME = 1000;
-LifesRenderable.PASS_TOTAL_TIME = 2000; // starting from the beginning
+LifesRenderable.PASS_PEAK_TIME = 500; //1000;
+LifesRenderable.PASS_TOTAL_TIME = 1000; //2000; // starting from the beginning
 
 // static function.
 // climb from 1 to 3 and then back to 0 again
 // if its time for the end of the animation, call onstop.
-// this is better than using a return value because I don't need to checn the return value when this function returns.
-LifesRenderable.getLightFactor = function(msec, onstop) {
-    
+// this is better than using a return value because I don't need to check the return value when this function returns.
+LifesRenderable.getLightFactor = function(msec, onstop) {  
     if (msec >= 0) {
+        d = 1 + 2*Math.sin(msec/LifesRenderable.PASS_TOTAL_TIME * Math.PI)
+        //writeDebug(msec + " " + d)       
+        if (d > 0)
+            return d; // when it goes negative, time to remove it
+        
         if (msec <= LifesRenderable.PASS_PEAK_TIME)
             return 1 + (LifesRenderable.PASS_PEAK_LIGHT / LifesRenderable.PASS_PEAK_TIME) * msec;
         else if (msec <= LifesRenderable.PASS_TOTAL_TIME)
@@ -840,7 +861,6 @@ LifesRenderable.prototype.startDeath = function() {
     this.activeDeath = 0;
 }
 LifesRenderable.prototype.startOneUp = function() {
-    
     this.activeOneUp = 0;
 }
 
