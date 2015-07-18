@@ -8,6 +8,9 @@ var userInput = {
     // a queue of objects. each object can have 'dir' or 'reldir' (relative direction) and 'skippedCount' - the number of iterations it was skipped
     currentlyPressedDirs: [],
     
+    touchX: null,
+    touchY: null,
+    
     HANDLERS_MENU: 1, HANDLERS_3D: 2,
     handlersSet: 0  // which set of event handlers is connected at the moment
 }
@@ -122,7 +125,7 @@ if (typeof KeyEvent == "undefined") {
         DOM_VK_F12: 	123
     };
 }
-KeyEvent._DOM_VK_OPEN_SQUARE = 219;
+KeyEvent._DOM_VK_OPEN_SQUARE = 219;   // open square brackets for relative directions
 KeyEvent._DOM_VK_CLOSE_SQUARE = 221;
 
 
@@ -211,24 +214,26 @@ function sampleKeys(player)
 {
     for(var k in userInput.currentlyPressedDirs)
     {
-        var inRec = userInput.currentlyPressedDirs[k];
+        var inRec = userInput.currentlyPressedDirs[k]; // TBD-this is BAD, still takes memory
         if (inRec === undefined)
             continue;
+        //writeDebug("SAMP-FOUND " + userInput.currentlyPressedDirs.length)
         
         if (inRec.dir)
             moveDir = viewControl.translateDir(inRec.dir, player);
         else // reldir  Directions.getRelativeDir(player.eDir, dr);
             moveDir = viewControl.translateRelativeDir(Directions.getRelativeDir(player.eDir, inRec.reldir, player));
+        writeDebug("SAMP-DIR " + moveDir.name)
 
         // its need to not be the opposite of where the player is currently heading
         // since the selected direction might not have updated the current direction yet
         if (moveDir !== null && moveDir !== player.eDir.opposite)
         {
             player.selDir = moveDir;
-         
-            if (game.isPaused() && gameConf.debug) {
-               movePlayer(userPlayer);
-               userPlayer.curStepFrac = 1;
+            if (game.isPaused() && gameConf.debug) { // debugging step-by-step
+                writeDebug("DO")
+                movePlayer(userPlayer);
+                userPlayer.curStepFrac = 1;
             }
            
             userInput.currentlyPressedDirs[k] = undefined; // delete inRec
@@ -245,6 +250,71 @@ function sampleKeys(player)
     }
 }
 
+var touchX = null, touchY = null
+
+function handleTouchStart(evt) {
+    writeDebug("TOUCH U " + userInput.touchX)
+    //writeDebug("TOUCH STARTI " + evt.touches[0].clientX + " " + evt.touches[0].clientY)
+    touchX = evt.touches[0].clientX;                                      
+    touchY = evt.touches[0].clientY;
+    writeDebug("TOUCH STARTX " + touchX + " " +  touchY)
+    return false
+};                                                
+
+function handleTouchMove(evt) {
+    //writeDebug("TOUCH MOVE")
+    if (!touchX || !touchY) {
+        return false;
+    }
+
+    var xUp = evt.touches[0].clientX;                                    
+    var yUp = evt.touches[0].clientY;
+
+    var xDiff = touchX - xUp;
+    var yDiff = touchY - yUp;
+    var axDiff = Math.abs(xDiff);
+    var ayDiff = Math.abs(yDiff);
+    
+    writeDebug("TOUCH " + xDiff + " " + yDiff)
+    
+    var d = null
+    if (axDiff > ayDiff) {
+        if (axDiff > 10) {
+            if (xDiff > 0) {
+                d = Directions.Left;
+            }
+            else {
+                d = Directions.Right;
+            }
+        }
+    }
+    else {
+        if (ayDiff > 10) {
+            if ( yDiff > 0 ) {
+                d = Directions.Up;
+            }
+            else { 
+                d = Directions.Down;
+            }
+        }
+    }
+    
+    if (d !== null) {
+        userInput.currentlyPressedDirs.push( { dir:d, skippedCount:0 } );
+        touchX = null;
+        touchX = null;
+        game.setPaused(false);
+    }
+    return false
+};
+
+function handleTouchEnd(evt) {
+    writeDebug("TOUCH END")
+    touchX = null;
+    touchX = null;
+    return false
+}
+
 
 // set up input handlers for 3d game
 function setupGameInput(canvas, canvas2d)
@@ -257,6 +327,13 @@ function setupGameInput(canvas, canvas2d)
     // disable scrolling in the page using keyboard
     document.onkeydown = handleKeyDown;
     document.onkeyup = handleKeyUp;
+    
+    writeDebug("TOUCH INIT")
+    document.body.addEventListener("touchstart", handleTouchStart, false);
+    document.body.addEventListener("touchmove", handleTouchMove, false);
+    document.body.addEventListener("touchend", handleTouchEnd, false);
+    document.body.addEventListener("touchcancel", handleTouchEnd, false);
+    writeDebug("TOUCH INITDONE")
     
     userInput.handlersSet = userInput.HANDLERS_3D;
 }

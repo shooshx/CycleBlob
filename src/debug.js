@@ -5,7 +5,7 @@ var debugDiv;
 
 // call this function from a script within the document for which to enable debug output
 function enableDebug() {
-  document.write("<div id='debugContent' style='display:block; position:absolute; top:7px; right:7px; padding:10px; width:200px; background:#ccc; color:white; border:solid 1px black;'></div>");
+  document.write("<div id='debugContent' style='display:block; position:absolute; top:7px; right:7px; padding:10px; width:200px; background:#ccc; color:black; border:solid 1px black;'></div>");
   debugDiv = document.getElementById("debugContent");
   writeClearLink();
 }
