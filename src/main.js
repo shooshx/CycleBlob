@@ -546,6 +546,31 @@ function containterResize(event, bforce) {
     writeDebug("canvas resized: " + canvas.width + " x " + canvas.height);
 }
 
+var noiseTex = null;
+
+function handleTextureLoaded(image, texture) {
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+//    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 0);
+//    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, 0);
+    
+   // gl.bindTexture(gl.TEXTURE_2D, null);
+}
+
+function loadTexture() {
+    noiseTex = gl.createTexture();
+    img = new Image();
+    img.onload = function() { handleTextureLoaded(img, noiseTex); }
+    img.src = "img/tex2d.jpg"; 
+}
+
+
 function hack() {
     game.userLivesCount=10
 }
@@ -568,11 +593,13 @@ function webGLStart() {
     shaderFrame = $('#shadersFrame').contents();
     shaderProg.init(shaderFrame.find('#phong-fs'), shaderFrame.find('#phong-vs'));
     shaderProg.initNormParams();
-    bkgProg.init(shaderFrame.find('#bkg-fs'), shaderFrame.find('#bkg-vs'));
+    bkgProg.init(shaderFrame.find('#bkg-3dtex-fs'), shaderFrame.find('#bkg-vs'));
     bkgProg.initBkgParams();
     Program.use(shaderProg);
     
     window.onresize = containterResize;
+    
+    loadTexture();
     
    // startWorker(); //worker thread
  

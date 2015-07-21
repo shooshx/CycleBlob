@@ -311,6 +311,7 @@ C2d.prototype.loadingScreen = function(pc)
 }
 
 
+
 C2d.prototype.instructionsScreen = function()
 {
     this.preMenu();
@@ -329,8 +330,19 @@ C2d.prototype.instructionsScreen = function()
     this.curPage.keyHandler = this.curPage.mouseHandler = function() {
         c2d.end3dAbove();        
         c2d.showStartScreen();
+        window.history.back() // remove the pushe state
+        window.onpopstate = null
         return false;
     };
+    
+    // back button
+    window.history.pushState("inst", "Instructions", "");
+    window.onpopstate = function() {
+        c2d.end3dAbove();        
+        c2d.showStartScreen();
+        window.onpopstate = null
+    };
+
     
     var bsize = $MR(th * 1.5);
     this.render3d = [                 
@@ -433,6 +445,8 @@ C2d.prototype.customLevelScreen = function()
     
     this.wnd.makeImgButton($("#menuImg")[0], "Exit game", cw-5*en, ch-10*en, 4*en, 4*en, function() {
         c2d.showStartScreen();
+        window.history.back()
+        window.onpopstate = null        
     });
 
     this.wnd.makeImgButton($("#nextImg")[0], "Next level", cw-5*en, ch-5*en, 4*en, 4*en, function() {
@@ -456,10 +470,19 @@ C2d.prototype.customLevelScreen = function()
     this.curPage.keyHandler = function(keyCode) {
         if (keyCode === KeyEvent.DOM_VK_ESCAPE) {
             c2d.showStartScreen();
+            window.history.back()
+            window.onpopstate = null
             return false;
         }
         return true;
     }
+    
+    // back button
+    window.history.pushState("custom", "Custom Level", "");
+    window.onpopstate = function() {
+        c2d.showStartScreen();
+        window.onpopstate = null
+    };
     
     
     c2d.setMenuFont(th);

@@ -1,3 +1,4 @@
 AddOutputFilterByType DEFLATE text/html text/plain text/xml text/javascript text/css application/javascript application/json
+AddType application/x-web-app-manifest+json .webapp
 
 # you need to add to WAMP apache mod_filter,mod_deflate for these to work

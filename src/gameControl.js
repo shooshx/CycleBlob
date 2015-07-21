@@ -91,18 +91,19 @@ function startLife(lvlsel) {
     startGameControls();
 }
 
+// compressed models created using 7zip archive to gzip
 worldModels={
    // cube:           { file: "models/cube3.json",       eyeDist:3.3   },
-    "cube":           { file: "models/cube5quads.json",       eyeDist:3.3   },
-    "triCorner":      { file: "models/triCorner4.json",       eyeDist: 7 },
-    "plus":           { file: "models/plus4q.json",           eyeDist: 7 },
-    "dblsofa":        { file: "models/dbl_sofa_soft_4q.json", eyeDist: 3.3 },
-    "softsofa":       { file: "models/sofa4q_soft.json",      eyeDist: 3.54 }, // nice
-    "dDiamond":       { file: "models/distortDiamond5q.json", eyeDist: 4    }, // nice
-    "torus":          { file: "models/torus_100_50s.json",    eyeDist: 3.66 }, // fun
-    "tetra":          { file: "models/tetra1_4q.json",        eyeDist: 3.4  },
-    "mobius":         { file: "models/mobius_10r_3q.json",    eyeDist: 1.0  },
-    "rotDounut":      { file: "models/rot_dounut2.json",        eyeDist: 4 }
+    "cube":           { file: "modelsz/cube5quads.jsonz",       eyeDist:3.3   },
+    "triCorner":      { file: "modelsz/triCorner4.jsonz",       eyeDist: 7 },
+    "plus":           { file: "modelsz/plus4q.jsonz",           eyeDist: 7 },
+    "dblsofa":        { file: "modelsz/dbl_sofa_soft_4q.jsonz", eyeDist: 3.3 },
+    "softsofa":       { file: "modelsz/sofa4q_soft.jsonz",      eyeDist: 3.54 }, // nice
+    "dDiamond":       { file: "modelsz/distortDiamond5q.jsonz", eyeDist: 4    }, // nice
+    "torus":          { file: "modelsz/torus_100_50s.jsonz",    eyeDist: 3.66 }, // fun
+    "tetra":          { file: "modelsz/tetra1_4q.jsonz",        eyeDist: 3.4  },
+    "mobius":         { file: "modelsz/mobius_10r_3q.jsonz",    eyeDist: 1.0  },
+    "rotDounut":      { file: "modelsz/rot_dounut2.jsonz",        eyeDist: 4 }
 //sofa:           { file: "modelsz/sofa4q.jsonz",           eyeDist: 4    },
 //triCornerOut:   { file: "modelsz/triCornerOut4.jsonz",    eyeDist: 6.95 },
   //  squashSofa:     { file: "models/squashSofa5q.json",     eyeDist: 2.78 }, // confusing, sickening

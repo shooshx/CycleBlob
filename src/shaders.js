@@ -80,6 +80,7 @@ Program.prototype.initBkgParams = function () {
     this.pMatrixUniform = gl.getUniformLocation(this.prog, "uPMatrix");
     this.mvMatrixUniform = gl.getUniformLocation(this.prog, "uMVMatrix");
     this.timeUniform = gl.getUniformLocation(this.prog, "time");
+    this.textureUniform = gl.getUniformLocation(this.prog, "noisef");
 
     //writeDebug(this.pMatrixUniform + "," + this.mvMatrixUniform + "," + this.vertexPositionAttribute);
 }
@@ -187,3 +188,6 @@ Program.prototype.enableNormals = function(b) {
 Program.prototype.setTime = function (v) {
     gl.uniform1f(this.timeUniform, v);
 }
+
+
+
