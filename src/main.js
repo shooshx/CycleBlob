@@ -539,6 +539,7 @@ function containterResize(event, bforce) {
     gl.viewportWidth = canvas.width = canvas2d.width = newWidth;
     var vpw = newWidth * 0.7;
     drawDiv.style.height = vpw + "px";
+    drawDiv.style.width = newWidth + "px";
     gl.viewportHeight = canvas.height = canvas2d.height = vpw;
     
     c2d.resizeAdjust(canvas2d.width, canvas2d.height);

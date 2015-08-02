@@ -253,15 +253,17 @@ function sampleKeys(player)
 var touchX = null, touchY = null
 
 function handleTouchStart(evt) {
-    writeDebug("TOUCH U " + userInput.touchX)
+    evt.preventDefault();
+   // writeDebug("TOUCH U " + userInput.touchX)
     //writeDebug("TOUCH STARTI " + evt.touches[0].clientX + " " + evt.touches[0].clientY)
     touchX = evt.touches[0].clientX;                                      
     touchY = evt.touches[0].clientY;
-    writeDebug("TOUCH STARTX " + touchX + " " +  touchY)
+  //  writeDebug("TOUCH STARTX " + touchX + " " +  touchY)
     return false
 };                                                
 
 function handleTouchMove(evt) {
+    evt.preventDefault();
     //writeDebug("TOUCH MOVE")
     if (!touchX || !touchY) {
         return false;
@@ -309,7 +311,8 @@ function handleTouchMove(evt) {
 };
 
 function handleTouchEnd(evt) {
-    writeDebug("TOUCH END")
+    evt.preventDefault();
+    //writeDebug("TOUCH END")
     touchX = null;
     touchX = null;
     return false
@@ -328,13 +331,12 @@ function setupGameInput(canvas, canvas2d)
     document.onkeydown = handleKeyDown;
     document.onkeyup = handleKeyUp;
     
-    writeDebug("TOUCH INIT")
+
     document.body.addEventListener("touchstart", handleTouchStart, false);
     document.body.addEventListener("touchmove", handleTouchMove, false);
     document.body.addEventListener("touchend", handleTouchEnd, false);
     document.body.addEventListener("touchcancel", handleTouchEnd, false);
-    writeDebug("TOUCH INITDONE")
-    
+
     userInput.handlersSet = userInput.HANDLERS_3D;
 }
 

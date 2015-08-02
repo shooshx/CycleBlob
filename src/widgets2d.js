@@ -121,6 +121,20 @@ function menuKeyDown(e) {
 
 function menuKeyUp(e) {}
 
+function menuHandleTouchStart(evt) {
+    evt.preventDefault();
+    
+    touchX = evt.touches[0].clientX - drawDiv.offsetLeft;                                      
+    touchY = evt.touches[0].clientY - drawDiv.offsetTop;
+    e = { layerX: touchX, layerY: touchY }
+    menuMouseDown(e)    
+}
+function menuHandleTouchMove(evt) {
+    evt.preventDefault();
+}
+function menuHandleTouchEnd(evt) {
+    evt.preventDefault();
+}
 
 //////////////////////////////////////////////// screens and widgets /////////////////////////
 
@@ -154,6 +168,11 @@ C2d.prototype.setup2dInputs = function()
     document.onmousewheel = menuMouseWheel;
     
     userInput.handlersSet = userInput.HANDLERS_MENU;
+    
+    document.body.addEventListener("touchstart", menuHandleTouchStart, false);
+    document.body.addEventListener("touchmove", menuHandleTouchMove, false);
+    document.body.addEventListener("touchend", menuHandleTouchEnd, false);
+    document.body.addEventListener("touchcancel", menuHandleTouchEnd, false);    
 }
 
 
