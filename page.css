@@ -17,6 +17,7 @@ noscript h2 {
 body {
     background: #222;
     font-family: sans-serif;
+    overflow: hidden;
 }
 
 a img {

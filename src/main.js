@@ -586,6 +586,10 @@ function webGLStart() {
     
     canvas2d = document.getElementById("ctrl-canvas");
     ctx2d = canvas2d.getContext('2d');
+    if (ctx2d == null) {
+        alert("failed creating 2d context")
+        return
+    }
     
     containterResize(null, true);
     c2d.showStartScreen(ctx2d); // sets up the screen and returns immediately
