@@ -155,7 +155,7 @@ function loadedResource(loadedName, item) {
 function loadModel(filename, method, name, onload, args) {
     updateProgress(name, "loading");
     
-    var ret = $.getJSON(filename, {}, function(data) {
+    var doneFunc = function(data) {
             
         if (method === "indexed") {
             var model = {};
@@ -172,7 +172,23 @@ function loadModel(filename, method, name, onload, args) {
         }
         else
             throw "unknown load method";
-    });
+    }
+    
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4) {
+           if (this.status == 200) {
+                doneFunc( JSON.parse(xhttp.responseText));
+           }
+           else {
+                throw "failed loading file " + filename;
+           }
+        }
+    };
+    xhttp.open("GET", filename, true);
+    xhttp.send();
+    
+    
 }
 
 

@@ -15,7 +15,7 @@ function getShader(gl, elem) {
         }
         k = k.nextSibling;
     }*/
-    var innerElem = shaderScript[0];
+    var innerElem = shaderScript;
     var str = innerElem.text;
 
     var shader;

@@ -5,7 +5,7 @@
     <meta http-Equiv="Expires" Content="0">
 </head>
 
-<script id="phong-vs" type="x-shader/x-vertex">
+<script id="phongVs" type="x-shader/x-vertex">
     precision highp float;
       
     attribute vec3 aVertexPosition;
@@ -31,7 +31,7 @@
     }
 </script>    
 
-<script id="phong-fs" type="x-shader/x-fragment">
+<script id="phongFs" type="x-shader/x-fragment">
     precision highp float;
     // varying vec2 vTextureCoord;
     varying vec3 vTransformedNormal;
@@ -71,7 +71,7 @@
     }
 </script>
 
-<script id="bkg-vs" type="x-shader/x-vertex">
+<script id="bkgVs" type="x-shader/x-vertex">
     precision highp float;
     attribute vec3 aVertexPosition;
     uniform mat4 uMVMatrix;
@@ -84,7 +84,7 @@
     }
 </script>    
 
-<script id="bkg-3dtex-fs" type="x-shader/x-fragment">
+<script id="bkgTDtexFs" type="x-shader/x-fragment">
 precision highp float;
 varying vec3 pos;
 uniform float time;
@@ -170,7 +170,7 @@ void main (void)
 
 </script>
 
-<script id="bkg-fs" type="x-shader/x-fragment">
+<script id="bkgFs" type="x-shader/x-fragment">
 precision highp float;
 varying vec3 pos;
 uniform float time;

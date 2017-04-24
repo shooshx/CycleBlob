@@ -28,7 +28,6 @@ curdir = os.path.dirname(os.path.abspath(__file__))
     
     
 jslist_bare=[
-'src/jquery.cookie.js',
 'src/browserDetect.js',
 'src/webgl-utils.js',
 'src/glMatrix-0.9.4.min.js',
@@ -67,7 +66,7 @@ resources={
              'icon_Forward.png',
              'icon_Playb.png',
              'icon_Refresh.png',
-             'instructions3.svgz',
+             'instructions3.svg',
              'instructions_header.png',
              'rep_image.png',
              'speaker_off.svg',
@@ -96,22 +95,22 @@ resources={
              'turn5.mp3',
              'turn5.ogg',
     ],
-    'modelsz': [
-             'cube5quads.jsonz',
-             'dbl_sofa_soft_4q.jsonz',
-             'distortDiamond5q.jsonz',
-             'mobius_10r_3q.jsonz',
-             'plus4q.jsonz',
-             'rot_dounut2.jsonz',
-             'sofa4q.jsonz',
-             'sofa4q_soft.jsonz',
-             'tetra1_4q.jsonz',
-             'torus_100_50s.jsonz',
-             'triCorner4.jsonz',
-             'triCornerOut4.jsonz',
-    ],
+
     'models': ['bikePlayer2.json',
-               'lifeWheel.json'
+               'lifeWheel.json',
+               
+             'cube5quads.json',
+             'dbl_sofa_soft_4q.json',
+             'distortDiamond5q.json',
+             'mobius_10r_3q.json',
+             'plus4q.json',
+             'rot_dounut2.json',
+             'sofa4q.json',
+             'sofa4q_soft.json',
+             'tetra1_4q.json',
+             'torus_100_50s.json',
+             'triCorner4.json',
+             'triCornerOut4.json',               
     ],
 }
 

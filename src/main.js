@@ -344,7 +344,7 @@ var dispFps = function() {
         sum += elapsed;
         ++count;
         if (count > 10) {
-            $("#fpsui").text("FPS: " + Math.round(1000/(sum/count)) );
+            fpsui.innerHTML = "FPS: " + Math.round(1000/(sum/count)) ;
             sum = 0;
             count = 0;
         }
@@ -595,10 +595,10 @@ function webGLStart() {
     c2d.showStartScreen(ctx2d); // sets up the screen and returns immediately
 
 
-    shaderFrame = $('#shadersFrame').contents();
-    shaderProg.init(shaderFrame.find('#phong-fs'), shaderFrame.find('#phong-vs'));
+
+    shaderProg.init(shadersFrame.contentDocument.getElementById('phongFs'), shadersFrame.contentDocument.getElementById('phongVs'));
     shaderProg.initNormParams();
-    bkgProg.init(shaderFrame.find('#bkg-3dtex-fs'), shaderFrame.find('#bkg-vs'));
+    bkgProg.init(shadersFrame.contentDocument.getElementById('bkgTDtexFs'), shadersFrame.contentDocument.getElementById('bkgVs'));
     bkgProg.initBkgParams();
     Program.use(shaderProg);
     
@@ -612,7 +612,7 @@ function webGLStart() {
    // loadLevelWorld(0, true, true);
    // loadLevelWorld(1, true, true);
     //loadLevelWorld(2, true, true);
-    $("#fpsui").text("FPS: 0");
+   // fpsui.innerHTML = "FPS: 0";
 
     loadModel("models/bikePlayer2.json", "inlined", "bike", loadedResource); 
     loadModel("models/lifeWheel.json", "indexed", "life", loadedResource);

@@ -44,7 +44,7 @@ function menuMouseMove(e) {
     var w = c2d.getWidget(e)
     if (w !== null && w.base.index !== c2d.curPage.sel) {
         
-        //var snd = $("#turnSound")[0];
+        //var snd = turnSound;
         //snd.currentTime = 0;
         //snd.play();
         

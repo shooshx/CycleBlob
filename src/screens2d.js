@@ -29,7 +29,7 @@ C2d.prototype.showStartScreen = function()
         c2d.customLevelScreen();
     });
     
-    this.wnd.makeImgToggleButton($("#soundOnImg")[0], $("#soundOffImg")[0], "Sound", game.soundEnabled, cw-50-2*em, ch-50-2*em,
+    this.wnd.makeImgToggleButton(soundOnImg, soundOffImg, "Sound", game.soundEnabled, cw-50-2*em, ch-50-2*em,
                              2.5*em, 2.5*em, function(isOn) {
        writeDebug("SetSnd " + isOn);
        game.enableSound(isOn);
@@ -37,7 +37,7 @@ C2d.prototype.showStartScreen = function()
     
     this.blankScr("black");
 
-    var img = $("#titleTextImg")[0];
+    var img = titleTextImg;
     ctx2d.drawImage(img, 0, 0, cw, $MR(img.height / img.width * (cw)));
     
     this.drawVersionNum();    
@@ -110,16 +110,16 @@ C2d.prototype.levelComplete = function(compLvlNum, compLvl)
     var cx = $MR(ctx2d.canvas.width / 2), cy = $MR(ctx2d.canvas.height / 2);
     var en = this.en, th = this.texth, hth = $MR(th/2);
 
-    this.wnd.makeImgButton($("#againImg")[0], "This one again", cx-7*en, cy, 4*en, 4*en, function() {
+    this.wnd.makeImgButton(againImg, "This one again", cx-7*en, cy, 4*en, 4*en, function() {
         c2d.clearScr();
         startLife(compLvl); // level is loaded becaue we just played this level
     });
     
-    this.wnd.makeImgButton($("#menuImg")[0], "Exit game", cx-2*en, cy, 4*en, 4*en, function() {
+    this.wnd.makeImgButton(menuImg, "Exit game", cx-2*en, cy, 4*en, 4*en, function() {
         c2d.showStartScreen();
     });
 
-    var nextBot = this.wnd.makeImgButton($("#nextImg")[0], "Next level", cx+3*en, cy, 4*en, 4*en, function() {
+    var nextBot = this.wnd.makeImgButton(nextImg, "Next level", cx+3*en, cy, 4*en, 4*en, function() {
         c2d.clearScr();
         if (compLvl === levels.length - 1) {// last level
             this.showStartScreen();
@@ -164,13 +164,13 @@ C2d.prototype.lifeEndScreen = function(inLvl, inLvlNum)
     var cx = $MR(ctx2d.canvas.width / 2), cy = $MR(ctx2d.canvas.height / 2);
     var th = this.texth, en = this.en;
 
-    var againBot = this.wnd.makeImgButton($("#againImg")[0], "Try again", cx-5*en, cy, 4*en, 4*en, function() {
+    var againBot = this.wnd.makeImgButton(againImg, "Try again", cx-5*en, cy, 4*en, 4*en, function() {
         c2d.clearScr();
         if (inLvlNum !== -1)
             inLvl = inLvlNum;
         startLife(inLvl); // level is loaded becaue we just played this level
     });
-    this.wnd.makeImgButton($("#menuImg")[0], "Exit Game", cx+1*en, cy, 4*en, 4*en, function() {
+    this.wnd.makeImgButton(menuImg, "Exit Game", cx+1*en, cy, 4*en, 4*en, function() {
         c2d.mainMenu();
     });
     
@@ -199,7 +199,7 @@ C2d.prototype.gameOverScreen = function(inLvl, inLvlNum)
     var cx = $MR(ctx2d.canvas.width / 2), cy = $MR(ctx2d.canvas.height / 2);
     var th = this.texth, en = this.en;
 
-    var menuBot = this.wnd.makeImgButton($("#menuImg")[0], "Back to menu", cx-2*en, cy, 4*en, 4*en, function() {
+    var menuBot = this.wnd.makeImgButton(menuImg, "Back to menu", cx-2*en, cy, 4*en, 4*en, function() {
         c2d.mainMenu();
     });
     
@@ -236,14 +236,14 @@ C2d.prototype.verbosePauseScreen = function()
         game.setPaused(false);
     }
 
-    this.wnd.makeImgButton($("#resumeImg")[0], "Resume", cx-7*en, cy, 4*en, 4*en, function() {
+    this.wnd.makeImgButton(resumeImg, "Resume", cx-7*en, cy, 4*en, 4*en, function() {
         resume();
     });
-    this.wnd.makeImgButton($("#menuImg")[0], "End game", cx-2*en, cy, 4*en, 4*en, function() {
+    this.wnd.makeImgButton(menuImg, "End game", cx-2*en, cy, 4*en, 4*en, function() {
         game.isDemo = false;
         c2d.mainMenu();
     });
-    this.wnd.makeImgToggleButton($("#soundOnImg")[0], $("#soundOffImg")[0], "Sound", game.soundEnabled, cx+3*en, cy, 4*en, 4*en, function(isOn) {
+    this.wnd.makeImgToggleButton(soundOnImg, soundOffImg, "Sound", game.soundEnabled, cx+3*en, cy, 4*en, 4*en, function(isOn) {
        writeDebug("SetSnd " + isOn);
        game.enableSound(isOn);
     });
@@ -320,9 +320,9 @@ C2d.prototype.instructionsScreen = function()
     var cx = $MR(cw / 2), cy = $MR(ch / 2), th = this.texth, em = this.em, en = this.en;
 
     // no drawWindow in chrome so we need to draw the embedded image manually.
-    var img = $("#instructImg")[0];
+    var img = instructImg;
     ctx2d.drawImage(img, 0, 0, cw, $MR(img.height / img.width * (cw)));
-    var hdr = $("#instructHeader")[0];
+    var hdr = instructHeader;
     var hw = $MR(678 / img.width * cw); // 678 is the width of the image when embedded into the svg
     ctx2d.drawImage(hdr, cx-$MR(hw/2), 0, hw, $MR(hdr.height / hdr.width * (hw)));
 
@@ -443,13 +443,13 @@ C2d.prototype.customLevelScreen = function()
     });
     c2d.curPage.wheelHandlers = [ {box:modelsCont.box, handler: function(e) { scroll.onWheelEvent(e) } } ];
     
-    this.wnd.makeImgButton($("#menuImg")[0], "Exit game", cw-5*en, ch-10*en, 4*en, 4*en, function() {
+    this.wnd.makeImgButton(menuImg, "Exit game", cw-5*en, ch-10*en, 4*en, 4*en, function() {
         c2d.showStartScreen();
         window.history.back()
         window.onpopstate = null        
     });
 
-    this.wnd.makeImgButton($("#nextImg")[0], "Next level", cw-5*en, ch-5*en, 4*en, 4*en, function() {
+    this.wnd.makeImgButton(nextImg, "Next level", cw-5*en, ch-5*en, 4*en, 4*en, function() {
         c2d.clearScr();
     
         worldLvl = scrSel.worldSel.sel;
