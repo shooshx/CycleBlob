@@ -1,0 +1,13 @@
+{
+  "name": "Cycleblob",
+  "description": "A WebGL LightCycle game",
+  "launch_path": "/index.html",
+  "icons": {
+    "128": "/img/rep_image_128.png"
+  },
+  "developer": {
+    "name": "Shy Shalom",
+    "url": "https://github.com/shooshx"
+  },
+  "default_locale": "en"
+}

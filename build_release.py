@@ -56,17 +56,14 @@ minjsout= 'cycleblob.min.js'
 
 resources={
     '':    [
-             '.htaccess',
-             'about.php',
-             'contact.php',
+             'about.html',
              'src/jquery-1.4.4.min.js',
              'page.css',
              'shaders.html',
              'favicon.ico',
              'firefox_store_manifest.webapp',
     ],
-    'img': [ '.htaccess',
-             'icon_Desktop.png',
+    'img': [ 'icon_Desktop.png',
              'icon_Forward.png',
              'icon_Playb.png',
              'icon_Refresh.png',
@@ -99,7 +96,7 @@ resources={
              'turn5.mp3',
              'turn5.ogg',
     ],
-    'modelsz': ['.htaccess',
+    'modelsz': [
              'cube5quads.jsonz',
              'dbl_sofa_soft_4q.jsonz',
              'distortDiamond5q.jsonz',
